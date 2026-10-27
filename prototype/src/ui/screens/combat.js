@@ -1,6 +1,8 @@
-﻿import { icon } from "../icons.js";
+﻿import { equipmentForItem } from "../../game/inventory.js";
+import { skillLevel } from "../../game/progression.js";
+import { deriveStats, scaleEnemy } from "../../game/stats.js";
 import { activeActionLabel, durationLabel, esc, fmt, progressPercent } from "../helpers.js";
-import { deriveStats, equipmentForItem, scaleEnemy, skillLevel } from "../state.js";
+import { icon } from "../icons.js";
 
 const EQUIP_SLOTS = [
   ["helmet", "Helm"],
@@ -37,6 +39,95 @@ function renderFighter({ name, meta, iconName, hp, maxHp, stats, enemy = false }
   `;
 }
 
+function renderEnemyRows(registry, state, enemies) {
+  return enemies
+    .map((enemy) => {
+      const faction = registry.get("factions", enemy.factionId);
+      const stats = scaleEnemy(enemy, faction);
+      const current = state.combat?.enemyId === enemy.id ? state.combat.hp : stats.hp;
+      const percent = Math.max(0, Math.min(100, (current / stats.hp) * 100));
+      const boss = enemy.role === "boss";
+
+      return `
+        <div class="enemy-row">
+          <div class="row-icon">${icon(enemy.icon)}</div>
+          <div class="row-name">
+            ${esc(enemy.name)}
+            <small>Level ${enemy.level} - ${esc(faction.name)}${boss ? " - Boss" : ""}</small>
+          </div>
+          <div class="mini-hp"><i style="width:${percent}%"></i></div>
+          <button class="btn ${boss ? "danger" : "primary"} row-btn" data-fight="${esc(enemy.id)}">
+            ${boss ? "Boss" : "Fight"}
+          </button>
+        </div>
+      `;
+    })
+    .join("");
+}
+
+function renderDungeonRows(bosses) {
+  return bosses
+    .map(
+      (enemy) => `
+        <div class="dungeon-row">
+          <div class="row-icon">${icon("star")}</div>
+          <div class="row-name">${esc(enemy.name)}<small>Boss - Level ${enemy.level}</small></div>
+          <div class="mini-hp"><i style="width:100%"></i></div>
+          <button class="btn row-btn" data-fight="${esc(enemy.id)}">Enter</button>
+        </div>
+      `
+    )
+    .join("");
+}
+
+function renderNodeCards(registry, state, area) {
+  return area.nodeIds
+    .map((id) => registry.get("nodes", id))
+    .filter(Boolean)
+    .map((node) => {
+      const skill = registry.get("skills", node.skillId);
+      const level = skillLevel(state, node.skillId);
+      const locked = level < node.levelReq;
+
+      return `
+        <div class="gather-card">
+          <div class="gather-head">
+            <div class="gather-icon">${icon(node.icon)}</div>
+            <div>
+              <div class="gather-name">${esc(node.name)}</div>
+              <div class="gather-meta">${esc(skill.name)} - Lv ${node.levelReq} - ${durationLabel(node.durationMs)}</div>
+            </div>
+          </div>
+          <button class="btn" data-node="${esc(node.id)}" ${locked ? "disabled" : ""}>
+            ${locked ? `Level ${node.levelReq}` : "Start"}
+          </button>
+        </div>
+      `;
+    })
+    .join("");
+}
+
+function renderEquipmentSlots(registry, state) {
+  return EQUIP_SLOTS.map(([slot, label]) => {
+    const itemId = state.equipment[slot];
+    const definition = itemId ? equipmentForItem(registry, itemId) : null;
+
+    return `
+      <div class="equip-slot" ${definition ? `data-unequip="${slot}" title="Unequip ${esc(definition.name)}"` : ""}>
+        ${definition ? icon(definition.icon) : ""}
+        <span>${esc(label)}</span>
+      </div>
+    `;
+  }).join("");
+}
+
+function renderLog(state) {
+  return state.logs
+    .slice(-8)
+    .map((line) => `<div class="log-line"><span class="${line.tone}">&gt;</span> ${esc(line.text)}</div>`)
+    .join("");
+}
+
 export function renderCombat(registry, state) {
   const areas = registry.all("areas");
   const area = registry.get("areas", state.selectedAreaId) ?? areas[0];
@@ -70,86 +161,12 @@ export function renderCombat(registry, state) {
     )
     .join("");
 
-  const enemyRows = enemies
-    .map((enemy) => {
-      const faction = registry.get("factions", enemy.factionId);
-      const stats = scaleEnemy(enemy, faction);
-      const current =
-        state.combat?.enemyId === enemy.id
-          ? state.combat.hp
-          : stats.hp;
-      const percent = Math.max(0, Math.min(100, (current / stats.hp) * 100));
-      const boss = enemy.role === "boss";
-
-      return `
-        <div class="enemy-row">
-          <div class="row-icon">${icon(enemy.icon)}</div>
-          <div class="row-name">
-            ${esc(enemy.name)}
-            <small>Level ${enemy.level} Â· ${esc(faction.name)}${boss ? " Â· Boss" : ""}</small>
-          </div>
-          <div class="mini-hp"><i style="width:${percent}%"></i></div>
-          <button class="btn ${boss ? "danger" : "primary"} row-btn" data-fight="${esc(enemy.id)}">
-            ${boss ? "Boss" : "Fight"}
-          </button>
-        </div>
-      `;
-    })
-    .join("");
-
+  const enemyRows = renderEnemyRows(registry, state, enemies);
   const bosses = enemies.filter((enemy) => enemy.role === "boss");
-  const dungeonRows = bosses
-    .map(
-      (enemy) => `
-        <div class="dungeon-row">
-          <div class="row-icon">${icon("star")}</div>
-          <div class="row-name">${esc(enemy.name)}<small>Boss Â· Level ${enemy.level}</small></div>
-          <div class="mini-hp"><i style="width:100%"></i></div>
-          <button class="btn row-btn" data-fight="${esc(enemy.id)}">Enter</button>
-        </div>
-      `
-    )
-    .join("");
-
-  const nodeCards = area.nodeIds
-    .map((id) => registry.get("nodes", id))
-    .filter(Boolean)
-    .map((node) => {
-      const skill = registry.get("skills", node.skillId);
-      const level = skillLevel(state, node.skillId);
-      const locked = level < node.levelReq;
-      return `
-        <div class="gather-card">
-          <div class="gather-head">
-            <div class="gather-icon">${icon(node.icon)}</div>
-            <div>
-              <div class="gather-name">${esc(node.name)}</div>
-              <div class="gather-meta">${esc(skill.name)} Â· Lv ${node.levelReq} Â· ${durationLabel(node.durationMs)}</div>
-            </div>
-          </div>
-          <button class="btn" data-node="${esc(node.id)}" ${locked ? "disabled" : ""}>
-            ${locked ? `Level ${node.levelReq}` : "Start"}
-          </button>
-        </div>
-      `;
-    })
-    .join("");
-
-  const equipmentSlots = EQUIP_SLOTS.map(([slot, label]) => {
-    const itemId = state.equipment[slot];
-    const def = itemId ? equipmentForItem(registry, itemId) : null;
-    return `
-      <div class="equip-slot" ${def ? `data-unequip="${slot}" title="Unequip ${esc(def.name)}"` : ""}>
-        ${def ? icon(def.icon) : ""}
-        <span>${esc(label)}</span>
-      </div>
-    `;
-  }).join("");
-
-  const logLines = state.logs
-    .slice(-8)
-    .map((line) => `<div class="log-line"><span class="${line.tone}">&gt;</span> ${esc(line.text)}</div>`)
-    .join("");
+  const dungeonRows = renderDungeonRows(bosses);
+  const nodeCards = renderNodeCards(registry, state, area);
+  const equipmentSlots = renderEquipmentSlots(registry, state);
+  const logLines = renderLog(state);
 
   return `
     <div class="page-head">
@@ -175,7 +192,7 @@ export function renderCombat(registry, state) {
             <div class="duel">
               ${renderFighter({
                 name: "Scavenger",
-                meta: `Level ${state.combatLevel} Â· Player`,
+                meta: `Level ${state.combatLevel} - Player`,
                 iconName: "survivor",
                 hp: state.hp,
                 maxHp: playerMaxHp,
@@ -183,7 +200,7 @@ export function renderCombat(registry, state) {
               })}
               ${renderFighter({
                 name: selectedEnemy.name,
-                meta: `Level ${selectedEnemy.level} Â· ${enemyFaction.name}`,
+                meta: `Level ${selectedEnemy.level} - ${enemyFaction.name}`,
                 iconName: selectedEnemy.icon,
                 hp: combatState.hp,
                 maxHp: combatState.maxHp,

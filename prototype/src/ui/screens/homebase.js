@@ -1,5 +1,5 @@
+﻿import { esc } from "../helpers.js";
 import { icon } from "../icons.js";
-import { esc } from "../helpers.js";
 
 const PALETTE = [
   { id: "road", name: "Road", icon: "brick" },
@@ -10,7 +10,7 @@ const PALETTE = [
   { id: "workshop", name: "Workshop", icon: "wrench" },
 ];
 
-export function renderHomeBase(registry, state) {
+export function renderHomeBase(state) {
   const palette = PALETTE.map(
     (entry) => `
       <button class="palette-card${state.home.selected === entry.id ? " active" : ""}" data-build="${entry.id}">

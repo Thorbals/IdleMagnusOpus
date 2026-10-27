@@ -1,5 +1,5 @@
-import { icon } from "./icons.js";
 import { esc, fmt } from "./helpers.js";
+import { icon } from "./icons.js";
 
 const GROUPS = [
   ["combat", "Combat"],

@@ -68,7 +68,6 @@ export function buildRegistry(categories) {
 
   const all = (categoryId) => byId.get(categoryId)?.entries ?? [];
 
-  const byKey = (categoryId, key) => byId.get(categoryId)?.byKey.get(key);
 
   const get = (categoryId, idOrKey) => {
     if (!idOrKey) return undefined;
@@ -80,12 +79,8 @@ export function buildRegistry(categories) {
   const has = (categoryId, idOrKey) => Boolean(get(categoryId, idOrKey));
 
   return {
-    categories,
-    byId,
-    maps,
     errors,
     all,
-    byKey,
     get,
     has,
   };

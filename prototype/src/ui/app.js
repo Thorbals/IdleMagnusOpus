@@ -1,32 +1,28 @@
-import { renderShell } from "./shell.js";
-import { renderAreas } from "./screens/areas.js";
-import { renderCombat } from "./screens/combat.js";
-import { renderBank } from "./screens/bank.js";
-import { renderShop } from "./screens/shop.js";
-import { renderSkill } from "./screens/skills.js";
-import { renderHomeBase } from "./screens/homebase.js";
-import {
+﻿import {
   addItem,
-  addSkillXp,
   countItem,
-  deriveStats,
   equipItem,
+  removeItem,
+  unequipItem,
+} from "../game/inventory.js";
+import { resolveDrops, resolveNodeDrops } from "../game/loot.js";
+import { addSkillXp, skillLevel } from "../game/progression.js";
+import { deriveStats, scaleEnemy } from "../game/stats.js";
+import {
   loadState,
   pushLog,
-  removeItem,
   resetState,
   saveState,
-  scaleEnemy,
   setToast,
-  skillLevel,
-  unequipItem,
-} from "./state.js";
-import {
-  itemName,
-  resolveDrops,
-  rollChance,
-  rollQuantity,
-} from "./helpers.js";
+} from "../state/state.js";
+import { itemName } from "./helpers.js";
+import { renderAreas } from "./screens/areas.js";
+import { renderBank } from "./screens/bank.js";
+import { renderCombat } from "./screens/combat.js";
+import { renderHomeBase } from "./screens/homebase.js";
+import { renderShop } from "./screens/shop.js";
+import { renderSkill } from "./screens/skills.js";
+import { renderShell } from "./shell.js";
 
 export function createApp({ registry, state }) {
   const root = document.getElementById("app");
@@ -43,7 +39,7 @@ export function createApp({ registry, state }) {
       case "skill":
         return renderSkill(registry, state);
       case "homebase":
-        return renderHomeBase(registry, state);
+        return renderHomeBase(state);
       case "areas":
       default:
         return renderAreas(registry, state);
@@ -92,18 +88,6 @@ export function createApp({ registry, state }) {
       parts.push(`${drop.qty}x ${itemName(registry, drop.itemId)}`);
     }
     return parts;
-  }
-
-  function resolveNodeDrops(node) {
-    const drops = [];
-    for (const [itemId, entry] of Object.entries(node.drops)) {
-      if (!rollChance(entry.chance ?? 100)) continue;
-      drops.push({
-        itemId,
-        qty: rollQuantity(entry.qty ?? 1, entry.qty ?? 1),
-      });
-    }
-    return drops;
   }
 
   function startAction(kind, id) {
@@ -346,103 +330,62 @@ export function createApp({ registry, state }) {
     render();
   }
 
-  function handleClick(event) {
-    const target = event.target.closest(
-      "[data-nav],[data-skill],[data-area],[data-fight],[data-node],[data-recipe],[data-shop-tab],[data-buy],[data-item],[data-unequip],[data-build],[data-tile],[data-action],[data-heal],[data-escape],[data-cancel-action],[data-repeat-action]"
-    );
-    if (!target) return;
+  const CLICK_TARGETS = [
+    "[data-nav]",
+    "[data-skill]",
+    "[data-area]",
+    "[data-fight]",
+    "[data-node]",
+    "[data-recipe]",
+    "[data-shop-tab]",
+    "[data-buy]",
+    "[data-item]",
+    "[data-unequip]",
+    "[data-build]",
+    "[data-tile]",
+    "[data-action]",
+    "[data-heal]",
+    "[data-escape]",
+    "[data-cancel-action]",
+    "[data-repeat-action]",
+  ].join(",");
 
+  function handleNavigation(target) {
     if (target.dataset.nav) {
       go(target.dataset.nav);
-      return;
+      return true;
     }
 
     if (target.dataset.skill) {
       go("skill", { skillId: target.dataset.skill });
-      return;
+      return true;
     }
 
-    if (target.dataset.area) {
-      const area = registry.get("areas", target.dataset.area);
-      if (!area) return;
-      const firstEnemy = area.enemyIds[0];
-      state.combat = null;
-      state.selectedEnemyId = firstEnemy;
-      selectEnemy(firstEnemy);
-      go("combat", { areaId: area.id });
-      return;
-    }
+    return false;
+  }
 
+  function handleAreaSelection(target) {
+    if (!target.dataset.area) return false;
+
+    const area = registry.get("areas", target.dataset.area);
+    if (!area) return true;
+
+    state.combat = null;
+    state.selectedEnemyId = area.enemyIds[0];
+    selectEnemy(state.selectedEnemyId);
+    go("combat", { areaId: area.id });
+    return true;
+  }
+
+  function handleCombatControls(target) {
     if (target.dataset.fight) {
       fight(target.dataset.fight);
-      return;
-    }
-
-    if (target.dataset.node) {
-      startAction("node", target.dataset.node);
-      return;
-    }
-
-    if (target.dataset.recipe) {
-      startAction("recipe", target.dataset.recipe);
-      return;
-    }
-
-    if (target.dataset.shopTab) {
-      state.shopTab = target.dataset.shopTab;
-      render();
-      return;
-    }
-
-    if (target.dataset.buy) {
-      buy(target.dataset.buy);
-      return;
-    }
-
-    if (target.dataset.item) {
-      const action = target.dataset.itemAction;
-      if (action === "equip") {
-        if (equipItem(state, registry, target.dataset.item)) {
-          setToast(state, `Equipped ${itemName(registry, target.dataset.item)}`);
-        }
-        render();
-        return;
-      }
-
-      if (action === "use") {
-        useItem(target.dataset.item);
-        return;
-      }
-
-      setToast(state, itemName(registry, target.dataset.item));
-      render();
-      return;
-    }
-
-    if (target.dataset.unequip) {
-      const slot = target.dataset.unequip;
-      const itemId = state.equipment[slot];
-      if (unequipItem(state, registry, slot)) {
-        setToast(state, `Unequipped ${itemName(registry, itemId)}`);
-      }
-      render();
-      return;
-    }
-
-    if (target.dataset.build) {
-      state.home = { ...state.home, selected: target.dataset.build };
-      render();
-      return;
-    }
-
-    if (target.dataset.tile !== undefined) {
-      placeTile(Number(target.dataset.tile));
-      return;
+      return true;
     }
 
     if (target.dataset.heal !== undefined) {
       healFromQuickAction();
-      return;
+      return true;
     }
 
     if (target.dataset.escape !== undefined) {
@@ -451,14 +394,28 @@ export function createApp({ registry, state }) {
       pushLog(state, "You escaped the battle.", "muted");
       setToast(state, "Escaped");
       render({ resetScroll: true });
-      return;
+      return true;
+    }
+
+    return false;
+  }
+
+  function handleActivityControls(target) {
+    if (target.dataset.node) {
+      startAction("node", target.dataset.node);
+      return true;
+    }
+
+    if (target.dataset.recipe) {
+      startAction("recipe", target.dataset.recipe);
+      return true;
     }
 
     if (target.dataset.cancelAction !== undefined) {
       state.activeAction = null;
       pushLog(state, "Action cancelled.", "muted");
       render();
-      return;
+      return true;
     }
 
     if (target.dataset.repeatAction !== undefined) {
@@ -466,40 +423,126 @@ export function createApp({ registry, state }) {
         state.activeAction.repeat = !state.activeAction.repeat;
         render();
       }
-      return;
+      return true;
     }
 
-    if (target.dataset.action) {
-      switch (target.dataset.action) {
-        case "save":
-          saveState(state);
-          setToast(state, "Game saved.");
-          break;
-        case "load": {
-          const loaded = loadState(registry);
-          if (loaded) {
-            state = loaded;
-            setToast(state, "Game loaded.");
-          } else {
-            setToast(state, "No save found.", "bad");
-          }
-          break;
-        }
-        case "reset":
-          if (window.confirm("Reset all progress?")) {
-            state = resetState(registry);
-            setToast(state, "Progress reset.");
-          }
-          break;
-        case "autoheal":
-          state.autoheal = !state.autoheal;
-          setToast(state, `Autoheal ${state.autoheal ? "on" : "off"}.`);
-          break;
-        default:
-          break;
-      }
-      render({ resetScroll: true });
+    return false;
+  }
+
+  function handleShopControls(target) {
+    if (target.dataset.shopTab) {
+      state.shopTab = target.dataset.shopTab;
+      render();
+      return true;
     }
+
+    if (target.dataset.buy) {
+      buy(target.dataset.buy);
+      return true;
+    }
+
+    return false;
+  }
+
+  function handleInventoryControls(target) {
+    if (target.dataset.item) {
+      const action = target.dataset.itemAction;
+
+      if (action === "equip") {
+        if (equipItem(state, registry, target.dataset.item)) {
+          setToast(state, `Equipped ${itemName(registry, target.dataset.item)}`);
+        }
+        render();
+        return true;
+      }
+
+      if (action === "use") {
+        useItem(target.dataset.item);
+        return true;
+      }
+
+      setToast(state, itemName(registry, target.dataset.item));
+      render();
+      return true;
+    }
+
+    if (target.dataset.unequip) {
+      const slot = target.dataset.unequip;
+      const itemId = state.equipment[slot];
+
+      if (unequipItem(state, registry, slot)) {
+        setToast(state, `Unequipped ${itemName(registry, itemId)}`);
+      }
+      render();
+      return true;
+    }
+
+    return false;
+  }
+
+  function handleHomeBaseControls(target) {
+    if (target.dataset.build) {
+      state.home = { ...state.home, selected: target.dataset.build };
+      render();
+      return true;
+    }
+
+    if (target.dataset.tile !== undefined) {
+      placeTile(Number(target.dataset.tile));
+      return true;
+    }
+
+    return false;
+  }
+
+  function handleTopBarAction(target) {
+    if (!target.dataset.action) return false;
+
+    switch (target.dataset.action) {
+      case "save":
+        saveState(state);
+        setToast(state, "Game saved.");
+        break;
+      case "load": {
+        const loaded = loadState(registry);
+        if (loaded) {
+          state = loaded;
+          setToast(state, "Game loaded.");
+        } else {
+          setToast(state, "No save found.", "bad");
+        }
+        break;
+      }
+      case "reset":
+        if (window.confirm("Reset all progress?")) {
+          state = resetState(registry);
+          setToast(state, "Progress reset.");
+        }
+        break;
+      case "autoheal":
+        state.autoheal = !state.autoheal;
+        setToast(state, `Autoheal ${state.autoheal ? "on" : "off"}.`);
+        break;
+      default:
+        return false;
+    }
+
+    render({ resetScroll: true });
+    return true;
+  }
+
+  function handleClick(event) {
+    const target = event.target.closest(CLICK_TARGETS);
+    if (!target) return;
+
+    if (handleNavigation(target)) return;
+    if (handleAreaSelection(target)) return;
+    if (handleCombatControls(target)) return;
+    if (handleActivityControls(target)) return;
+    if (handleShopControls(target)) return;
+    if (handleInventoryControls(target)) return;
+    if (handleHomeBaseControls(target)) return;
+    handleTopBarAction(target);
   }
 
   function tick() {

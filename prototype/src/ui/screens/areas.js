@@ -1,5 +1,5 @@
-import { icon } from "../icons.js";
 import { esc } from "../helpers.js";
+import { icon } from "../icons.js";
 
 export function renderAreas(registry, state) {
   const cards = registry

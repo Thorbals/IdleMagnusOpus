@@ -1,6 +1,6 @@
 import { icon } from "../icons.js";
-import { esc, itemIcon, itemName } from "../helpers.js";
-import { equipmentForItem } from "../state.js";
+import { equipmentForItem } from "../../game/inventory.js";
+import { esc, itemName } from "../helpers.js";
 
 const CAPACITY = 30;
 

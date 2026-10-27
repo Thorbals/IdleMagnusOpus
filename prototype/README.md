@@ -1,4 +1,4 @@
-# Idleness - UI Prototype
+﻿# Idleness - UI Prototype
 
 A working UI shell with a normalized content layer. Layout mirrors the old game shell; theme is Night Market - Steel Blue.
 
@@ -14,6 +14,12 @@ Open:
 
 ```
 http://127.0.0.1:8771/prototype/index.html
+```
+
+Validate content:
+
+```powershell
+node prototype/scripts/validate-content.mjs
 ```
 
 Deep links for screenshots/testing:
@@ -155,10 +161,16 @@ src/
       shops.js
       areas.js
       index.js
+  game/
+    inventory.js         items, stacks, equip/unequip
+    loot.js              drop rolls
+    progression.js       XP, levels, skill bonuses
+    stats.js             derived stats, enemy scaling
+  state/
+    state.js             state creation, save/load, logs, toasts
   ui/
     icons.js             pixel icon maps
-    state.js             game state + item/equipment/XP helpers
-    helpers.js           formatting, drops, progress
+    helpers.js           formatting and lookup helpers
     shell.js             sidebar, top bar, toast
     screens/             areas, combat, bank, shop, skills, homebase
     app.js               event delegation, actions, tick

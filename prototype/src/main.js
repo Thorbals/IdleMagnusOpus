@@ -1,6 +1,6 @@
 ﻿import { categories } from "./content/categories/index.js";
 import { buildRegistry } from "./content/registry.js";
-import { createState, loadState } from "./ui/state.js";
+import { createState, loadState } from "./state/state.js";
 import { createApp } from "./ui/app.js";
 
 const registry = buildRegistry(categories);

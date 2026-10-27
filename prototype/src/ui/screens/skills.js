@@ -1,16 +1,13 @@
-import { icon } from "../icons.js";
+import { skillLevel, xpForLevel } from "../../game/progression.js";
 import {
   activeActionLabel,
   durationLabel,
   esc,
-  fmt,
-  itemName,
   nodesForSkill,
   progressPercent,
   recipesForSkill,
-  xpForLevel,
 } from "../helpers.js";
-import { skillLevel } from "../state.js";
+import { icon } from "../icons.js";
 
 function renderActionBar(registry, state) {
   const action = state.activeAction;
