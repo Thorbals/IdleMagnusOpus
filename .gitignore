@@ -1,0 +1,24 @@
+# Dependencies
+node_modules/
+
+# Builds and generated output
+dist/
+release/
+coverage/
+reports/
+
+# Local saves / exports
+saves/
+*.save.json
+
+# Logs and OS files
+*.log
+.DS_Store
+Thumbs.db
+
+# Editor settings
+.vscode/
+.idea/
+
+# Temporary files
+*.tmp

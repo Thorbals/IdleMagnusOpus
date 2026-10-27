@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Idleness — Urban Pixel GUI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Jersey+10&family=Pixelify+Sans:wght@400;500;600;700&family=VT323&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 26px;
+      background: #0a0a0d;
+      color: #d8d8e0;
+      font-family: "Pixelify Sans", "Segoe UI", sans-serif;
+      font-size: 13px;
+    }
+
+    .page-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 18px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 4px solid #24242c;
+    }
+
+    .page-head h1 {
+      margin: 0;
+      font-family: "Jersey 10", monospace;
+      font-size: 26px;
+      font-weight: 400;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .page-head p {
+      margin: 0;
+      color: #8f8f9e;
+      font-size: 12px;
+      max-width: 660px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(730px, 1fr));
+      gap: 26px;
+      align-items: start;
+    }
+
+    .variant {
+      background: var(--panel);
+      border: 4px solid var(--frame);
+      box-shadow: 8px 8px 0 rgba(0, 0, 0, 0.55);
+      color: var(--text);
+      filter: drop-shadow(0 0 0 transparent);
+    }
+
+    .variant-label {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 7px 10px;
+      background: var(--title);
+      color: var(--title-text);
+      border-bottom: 4px solid var(--frame);
+      font-family: "Jersey 10", monospace;
+      font-size: 18px;
+      line-height: 1;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .variant-label span {
+      font-family: "Pixelify Sans", sans-serif;
+      font-size: 10px;
+      color: var(--title-text);
+      opacity: 0.75;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    /* ---------- Urban stage ---------- */
+    .stage {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr 0.92fr 1.1fr;
+      grid-template-rows: auto auto;
+      gap: 11px;
+      padding: 15px;
+      min-height: 500px;
+      overflow: hidden;
+      background: var(--scene-sky);
+      -webkit-font-smoothing: none;
+      font-smooth: never;
+    }
+
+    .scene {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0.55;
+      pointer-events: none;
+    }
+
+    .stage > .panel { position: relative; z-index: 1; }
+
+    /* ---------- Panel ---------- */
+    .panel {
+      background: var(--panel);
+      border: 4px solid var(--frame);
+      filter: drop-shadow(5px 5px 0 rgba(0, 0, 0, 0.45));
+      display: grid;
+      grid-template-rows: auto 1fr;
+      min-width: 0;
+    }
+
+    .panel-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 4px 6px 3px;
+      background: var(--title);
+      color: var(--title-text);
+      border-bottom: 3px solid var(--frame);
+      font-family: "Jersey 10", monospace;
+      font-size: 19px;
+      line-height: 1;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .panel-title .x {
+      width: 19px;
+      height: 19px;
+      display: grid;
+      place-items: center;
+      background: var(--panel);
+      border: 2px solid var(--frame);
+      color: var(--text);
+      font-family: "VT323", monospace;
+      font-size: 14px;
+      line-height: 1;
+      box-shadow: inset 1px 1px 0 var(--slot-light), inset -1px -1px 0 var(--slot-dark);
+    }
+
+    .panel-body {
+      padding: 8px;
+      display: grid;
+      gap: 8px;
+      align-content: start;
+    }
+
+    /* ---------- Slots ---------- */
+    .slot-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 5px;
+    }
+
+    .slot-grid.equip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .slot-grid.craft { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+    .slot {
+      aspect-ratio: 1 / 1;
+      display: grid;
+      place-items: center;
+      background: var(--slot);
+      border: 2px solid var(--frame);
+      box-shadow: inset 2px 2px 0 var(--slot-light), inset -2px -2px 0 var(--slot-dark);
+      min-width: 0;
+    }
+
+    .slot svg { width: 78%; height: 78%; shape-rendering: crispEdges; }
+    .slot.big svg { width: 66%; height: 66%; }
+
+    /* ---------- Craft ---------- */
+    .craft-row {
+      display: grid;
+      grid-template-columns: 1fr auto 0.8fr;
+      gap: 6px;
+      align-items: center;
+    }
+
+    .craft-arrow {
+      font-family: "Jersey 10", monospace;
+      font-size: 22px;
+      color: var(--accent);
+      line-height: 1;
+    }
+
+    .create-btn {
+      justify-self: start;
+      margin-top: 2px;
+    }
+
+    /* ---------- Equipment stats ---------- */
+    .stat-line {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 8px;
+      font-family: "VT323", monospace;
+      font-size: 17px;
+      line-height: 1.05;
+      color: var(--muted);
+      border-bottom: 2px dotted var(--slot-dark);
+      padding-bottom: 1px;
+    }
+
+    .stat-line b { color: var(--text); font-weight: 400; }
+
+    /* ---------- Inventory ---------- */
+    .inv { align-self: start; }
+
+    .currency-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-family: "VT323", monospace;
+      font-size: 18px;
+      color: var(--text);
+      padding-top: 2px;
+    }
+
+    .currency {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .currency svg { width: 18px; height: 18px; shape-rendering: crispEdges; }
+
+    /* ---------- Result modal ---------- */
+    .result {
+      grid-column: 1 / span 2;
+      grid-row: 2;
+      align-self: stretch;
+    }
+
+    .result .panel-body {
+      place-items: center;
+      text-align: center;
+      gap: 4px;
+      padding: 10px;
+    }
+
+    .stars { display: flex; gap: 4px; }
+    .stars svg { width: 34px; height: 34px; shape-rendering: crispEdges; }
+
+    .result-title {
+      font-family: "Jersey 10", monospace;
+      font-size: 30px;
+      line-height: 1;
+      letter-spacing: 0.05em;
+      color: var(--text);
+      text-transform: uppercase;
+    }
+
+    .result-sub {
+      font-family: "VT323", monospace;
+      font-size: 16px;
+      color: var(--muted);
+      line-height: 1;
+    }
+
+    .result-actions { display: flex; gap: 8px; margin-top: 4px; }
+
+    /* ---------- Buttons ---------- */
+    .pixel-btn {
+      border: 3px solid var(--frame);
+      background: var(--accent);
+      color: var(--accent-text);
+      font-family: "Jersey 10", monospace;
+      font-size: 18px;
+      line-height: 1;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 5px 12px 3px;
+      cursor: pointer;
+      box-shadow:
+        inset 2px 2px 0 rgba(255, 255, 255, 0.32),
+        inset -2px -2px 0 rgba(0, 0, 0, 0.3),
+        3px 3px 0 var(--frame);
+    }
+
+    .pixel-btn.alt { background: var(--panel-2); color: var(--text); }
+
+    .pixel-btn:active {
+      transform: translate(2px, 2px);
+      box-shadow:
+        inset 2px 2px 0 rgba(255, 255, 255, 0.32),
+        inset -2px -2px 0 rgba(0, 0, 0, 0.3),
+        1px 1px 0 var(--frame);
+    }
+
+    /* =========================================================
+       1. CONCRETE DAYLIGHT — municipal concrete, graffiti teal
+       ========================================================= */
+    .v-day {
+      --frame: #2b2a27;
+      --panel: #cfc6b0;
+      --panel-2: #b8ae97;
+      --slot: #a2977f;
+      --slot-light: #d8cfb9;
+      --slot-dark: #7d7360;
+      --title: #2f6f66;
+      --title-text: #eef3ea;
+      --accent: #d9822b;
+      --accent-text: #21160a;
+      --text: #2a2721;
+      --muted: #6b6355;
+      --scene-sky: #2a2d33;
+      --scene-building: #1e2126;
+      --scene-building-2: #242830;
+      --scene-window: #e0a458;
+      --scene-road: #17181b;
+      --scene-line: #c9c2b0;
+      --scene-pole: #17181b;
+      --scene-glow: #e0a458;
+      --scene-fence: #8a8f98;
+    }
+
+    /* =========================================================
+       2. NIGHT MARKET — asphalt, neon magenta + cyan
+       ========================================================= */
+    .v-night {
+      --frame: #0e0f14;
+      --panel: #2a2c35;
+      --panel-2: #22242c;
+      --slot: #1a1c23;
+      --slot-light: #3a3d48;
+      --slot-dark: #0f1014;
+      --title: #c94f8a;
+      --title-text: #fff6fb;
+      --accent: #4fe0d0;
+      --accent-text: #06201d;
+      --text: #e6e6ef;
+      --muted: #9a9cae;
+      --scene-sky: #0c0d12;
+      --scene-building: #12141a;
+      --scene-building-2: #171922;
+      --scene-window: #c94f8a;
+      --scene-road: #08090c;
+      --scene-line: #d8d8e0;
+      --scene-pole: #08090c;
+      --scene-glow: #4fe0d0;
+      --scene-fence: #5a5d70;
+    }
+
+    /* =========================================================
+       3. RUST BELT — weathered tan, rust + hazard yellow
+       ========================================================= */
+    .v-rust {
+      --frame: #3a2a1c;
+      --panel: #c2a878;
+      --panel-2: #ab9162;
+      --slot: #8f7448;
+      --slot-light: #d8bf92;
+      --slot-dark: #6b5432;
+      --title: #b5532c;
+      --title-text: #f7e9d0;
+      --accent: #e0a458;
+      --accent-text: #2b1f12;
+      --text: #2b1f12;
+      --muted: #6b5432;
+      --scene-sky: #2a2119;
+      --scene-building: #1c1610;
+      --scene-building-2: #231b14;
+      --scene-window: #e0a458;
+      --scene-road: #171310;
+      --scene-line: #d8c8a8;
+      --scene-pole: #171310;
+      --scene-glow: #e0a458;
+      --scene-fence: #8a7a5a;
+    }
+
+    /* =========================================================
+       4. MUNICIPAL TILE — pale tile, subway blue
+       ========================================================= */
+    .v-muni {
+      --frame: #1f2a30;
+      --panel: #d9ded6;
+      --panel-2: #c2c9c0;
+      --slot: #aab3a8;
+      --slot-light: #eef2ea;
+      --slot-dark: #8a9388;
+      --title: #2b5d7a;
+      --title-text: #eef6f8;
+      --accent: #c24a2a;
+      --accent-text: #fff2e8;
+      --text: #1d262b;
+      --muted: #5f6b66;
+      --scene-sky: #1c2429;
+      --scene-building: #141a1e;
+      --scene-building-2: #192126;
+      --scene-window: #c9d6d0;
+      --scene-road: #111619;
+      --scene-line: #d9ded6;
+      --scene-pole: #111619;
+      --scene-glow: #c9d6d0;
+      --scene-fence: #6f7d80;
+    }
+
+    @media (max-width: 780px) {
+      body { padding: 12px; }
+      .grid { grid-template-columns: 1fr; }
+      .stage { grid-template-columns: 1fr 1fr; }
+      .inv { grid-column: 1 / span 2; }
+      .result { grid-column: 1 / span 2; grid-row: auto; }
+    }
+  </style>
+</head>
+<body>
+  <header class="page-head">
+    <h1>Urban Pixel — Four Material Sets</h1>
+    <p>
+      Same panel grammar as the reference: chunky frames, title bars, grid slots, beveled
+      buttons, result modal. Urban materials instead of cottage parchment.
+    </p>
+  </header>
+
+  <main class="grid" id="grid"></main>
+
+  <script>
+    /* ---------- Pixel icon renderer ---------- */
+    const PALETTE = {
+      k: "#17171c",
+      g: "#8a8f98",
+      l: "#c8ccd4",
+      d: "#4a4f58",
+      r: "#b23a2a",
+      o: "#d9822b",
+      y: "#e0c060",
+      b: "#5b8fd6",
+      t: "#4fae9e",
+      n: "#8a5a2b",
+      G: "#6fae7b",
+      w: "#e8e6e1",
+      p: "#b45cff",
+      s: "#9aa3ad"
+    };
+
+    const ICONS = {
+      knife: [
+        "............",
+        ".....ww.....",
+        "....wwww....",
+        "....wwww....",
+        "....wwww....",
+        "....wwww....",
+        "...kwwwwk...",
+        "...knnnnk...",
+        "....nnnn....",
+        "....nnnn....",
+        "............",
+        "............"
+      ],
+      crowbar: [
+        ".........rr.",
+        "........rr..",
+        ".......rr...",
+        "......rr....",
+        ".....rr.....",
+        "....rr......",
+        "...rr.......",
+        "..rr........",
+        ".rr.........",
+        "rr..........",
+        "............",
+        "............"
+      ],
+      pistol: [
+        "............",
+        "............",
+        "..dddddd....",
+        ".dddddddd...",
+        ".dgggggggd..",
+        "....dddddd..",
+        "....dd......",
+        "....dd......",
+        "....dd......",
+        "............",
+        "............",
+        "............"
+      ],
+      baton: [
+        ".....kk.....",
+        ".....kk.....",
+        ".....kk.....",
+        ".....kk.....",
+        ".....kk.....",
+        ".....kk.....",
+        ".....kk.....",
+        "....nkkn....",
+        "....nnnn....",
+        "............",
+        "............",
+        "............"
+      ],
+      medkit: [
+        "............",
+        "...kkkkkk...",
+        "..kwwwwwwk..",
+        "..kwwrrwwk..",
+        "..kwwrrwwk..",
+        "..kwrrrrwk..",
+        "..kwrrrrwk..",
+        "..kwwrrwwk..",
+        "..kwwrrwwk..",
+        "..kwwwwwwk..",
+        "...kkkkkk...",
+        "............"
+      ],
+      gasmask: [
+        "............",
+        "...kkkkkk...",
+        "..kggggggk..",
+        "..kgkkkkgk..",
+        "..kgkttkgk..",
+        "..kgkttkgk..",
+        "..kggggggk..",
+        "...kggggk...",
+        "....kddk....",
+        "....kddk....",
+        ".....kk.....",
+        "............"
+      ],
+      can: [
+        "............",
+        "...kkkkkk...",
+        "..kggggggk..",
+        "..krrrrrrk..",
+        "..krrrrrrk..",
+        "..krrrrrrk..",
+        "..krrrrrrk..",
+        "..kggggggk..",
+        "...kkkkkk...",
+        "............",
+        "............",
+        "............"
+      ],
+      battery: [
+        "............",
+        "....kkkk....",
+        "....kyyk....",
+        "...kkkkkk...",
+        "...kyyyyk...",
+        "...kykkyk...",
+        "...kyyyyk...",
+        "...kykkyk...",
+        "...kyyyyk...",
+        "...kkkkkk...",
+        "............",
+        "............"
+      ],
+      ammo: [
+        "............",
+        "..yy..yy....",
+        "..yy..yy....",
+        "..yy..yy....",
+        "..yy..yy....",
+        "..yy..yy....",
+        "..oo..oo....",
+        "..oo..oo....",
+        "............",
+        "............",
+        "............",
+        "............"
+      ],
+      key: [
+        "............",
+        "...yyyy.....",
+        "..yy..yy....",
+        "..yy..yy....",
+        "...yyyy.....",
+        "....yy......",
+        "....yy......",
+        "....yy......",
+        "....yyy.....",
+        "....yy......",
+        "............",
+        "............"
+      ],
+      wire: [
+        "............",
+        "...oooo.....",
+        "..oo..oo....",
+        "..oo..oo....",
+        "...oooo.....",
+        "..oooooo....",
+        ".oo....oo...",
+        ".oo....oo...",
+        "..oooooo....",
+        "............",
+        "............",
+        "............"
+      ],
+      helmet: [
+        "............",
+        "...gggggg...",
+        "..gggggggg..",
+        ".gggggggggg.",
+        ".gggggggggg.",
+        ".gggggggggg.",
+        "..kkkkkkkk..",
+        "............",
+        "............",
+        "............",
+        "............",
+        "............"
+      ],
+      boot: [
+        "............",
+        "....nnnn....",
+        "....nnnn....",
+        "....nnnn....",
+        "....nnnn....",
+        "....nnnnnn..",
+        "....nnnnnn..",
+        "..kknnnnnn..",
+        "..kkkkkkkk..",
+        "............",
+        "............",
+        "............"
+      ],
+      radio: [
+        "............",
+        ".....k......",
+        "....k.......",
+        "..kkkkkkk...",
+        "..kdddddk...",
+        "..kdgggdk...",
+        "..kdgggdk...",
+        "..kdddddk...",
+        "..kkkkkkk...",
+        "............",
+        "............",
+        "............"
+      ],
+      water: [
+        "............",
+        "....kkkk....",
+        "....kbbk....",
+        "...kkbbkk...",
+        "...kbbbbk...",
+        "...kbbbbk...",
+        "...kbbbbk...",
+        "...kbbbbk...",
+        "...kkkkkk...",
+        "............",
+        "............",
+        "............"
+      ],
+      scrap: [
+        "............",
+        "....kkkk....",
+        "...kggggk...",
+        "..kggkkggk..",
+        "..kgk..kgk..",
+        "..kgk..kgk..",
+        "..kggkkggk..",
+        "...kggggk...",
+        "....kkkk....",
+        "............",
+        "............",
+        "............"
+      ],
+      star: [
+        ".....y......",
+        "....yyy.....",
+        "...yyyyy....",
+        ".yyyyyyyyy..",
+        "..yyyyyyy...",
+        "...yyyyy....",
+        "..yyy.yyy...",
+        ".yy.....yy..",
+        "............",
+        "............",
+        "............",
+        "............"
+      ]
+    };
+
+    const icon = (name, cls = "") => {
+      const rows = ICONS[name] || ICONS.scrap;
+      const rects = rows.flatMap((row, y) =>
+        [...row].map((ch, x) => {
+          const fill = PALETTE[ch];
+          return fill ? `<rect x="${x}" y="${y}" width="1" height="1" fill="${fill}"/>` : "";
+        })
+      ).join("");
+
+      return `<svg class="${cls}" viewBox="0 0 12 12" aria-hidden="true">${rects}</svg>`;
+    };
+
+    const slot = (name, extra = "") =>
+      `<div class="slot ${extra}">${name ? icon(name) : ""}</div>`;
+
+    const scene = () => `
+      <svg class="scene" viewBox="0 0 800 520" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+        <rect width="800" height="520" fill="var(--scene-sky)"/>
+
+        <rect x="10" y="130" width="130" height="320" fill="var(--scene-building)"/>
+        <rect x="165" y="86" width="92" height="364" fill="var(--scene-building-2)"/>
+        <rect x="280" y="158" width="142" height="292" fill="var(--scene-building)"/>
+        <rect x="446" y="66" width="108" height="384" fill="var(--scene-building-2)"/>
+        <rect x="578" y="138" width="150" height="312" fill="var(--scene-building)"/>
+
+        <g fill="var(--scene-window)" opacity="0.42">
+          <rect x="28" y="152" width="8" height="8"/><rect x="46" y="152" width="8" height="8"/>
+          <rect x="64" y="152" width="8" height="8"/><rect x="28" y="172" width="8" height="8"/>
+          <rect x="46" y="172" width="8" height="8"/><rect x="64" y="172" width="8" height="8"/>
+          <rect x="28" y="192" width="8" height="8"/><rect x="46" y="192" width="8" height="8"/>
+          <rect x="28" y="212" width="8" height="8"/><rect x="64" y="212" width="8" height="8"/>
+
+          <rect x="180" y="106" width="8" height="8"/><rect x="198" y="106" width="8" height="8"/>
+          <rect x="216" y="106" width="8" height="8"/><rect x="180" y="126" width="8" height="8"/>
+          <rect x="198" y="126" width="8" height="8"/><rect x="216" y="126" width="8" height="8"/>
+          <rect x="180" y="146" width="8" height="8"/><rect x="216" y="146" width="8" height="8"/>
+
+          <rect x="300" y="180" width="8" height="8"/><rect x="320" y="180" width="8" height="8"/>
+          <rect x="340" y="180" width="8" height="8"/><rect x="300" y="200" width="8" height="8"/>
+          <rect x="320" y="200" width="8" height="8"/><rect x="340" y="200" width="8" height="8"/>
+          <rect x="300" y="220" width="8" height="8"/><rect x="340" y="220" width="8" height="8"/>
+
+          <rect x="466" y="88" width="8" height="8"/><rect x="486" y="88" width="8" height="8"/>
+          <rect x="506" y="88" width="8" height="8"/><rect x="466" y="108" width="8" height="8"/>
+          <rect x="486" y="108" width="8" height="8"/><rect x="506" y="108" width="8" height="8"/>
+          <rect x="466" y="128" width="8" height="8"/><rect x="506" y="128" width="8" height="8"/>
+
+          <rect x="598" y="160" width="8" height="8"/><rect x="618" y="160" width="8" height="8"/>
+          <rect x="638" y="160" width="8" height="8"/><rect x="598" y="180" width="8" height="8"/>
+          <rect x="618" y="180" width="8" height="8"/><rect x="638" y="180" width="8" height="8"/>
+          <rect x="598" y="200" width="8" height="8"/><rect x="638" y="200" width="8" height="8"/>
+        </g>
+
+        <g fill="var(--title)" opacity="0.28">
+          <rect x="60" y="300" width="64" height="8"/>
+          <rect x="70" y="312" width="42" height="8"/>
+        </g>
+
+        <rect y="440" width="800" height="80" fill="var(--scene-road)"/>
+        <g fill="var(--scene-line)" opacity="0.42">
+          <rect x="28" y="476" width="56" height="6"/>
+          <rect x="132" y="476" width="56" height="6"/>
+          <rect x="236" y="476" width="56" height="6"/>
+          <rect x="340" y="476" width="56" height="6"/>
+          <rect x="444" y="476" width="56" height="6"/>
+          <rect x="548" y="476" width="56" height="6"/>
+          <rect x="652" y="476" width="56" height="6"/>
+          <rect x="756" y="476" width="32" height="6"/>
+        </g>
+
+        <rect x="704" y="224" width="7" height="216" fill="var(--scene-pole)"/>
+        <rect x="662" y="218" width="49" height="7" fill="var(--scene-pole)"/>
+        <rect x="656" y="210" width="14" height="8" fill="var(--scene-glow)"/>
+        <circle cx="663" cy="214" r="44" fill="var(--scene-glow)" opacity="0.1"/>
+
+        <g stroke="var(--scene-fence)" stroke-width="3" opacity="0.22">
+          <path d="M0 432 L800 472"/>
+          <path d="M0 472 L800 432"/>
+        </g>
+      </svg>
+    `;
+
+    const mock = () => `
+      <div class="stage">
+        ${scene()}
+
+        <!-- CRAFT -->
+        <section class="panel">
+          <div class="panel-title"><span>Craft</span><span class="x">x</span></div>
+          <div class="panel-body">
+            <div class="craft-row">
+              <div class="slot-grid craft">
+                ${slot("scrap")}
+                ${slot("wire")}
+                ${slot("battery")}
+                ${slot("can")}
+              </div>
+              <div class="craft-arrow">&rarr;</div>
+              ${slot("radio", "big")}
+            </div>
+            <button class="pixel-btn create-btn">Create</button>
+          </div>
+        </section>
+
+        <!-- EQUIPMENT -->
+        <section class="panel">
+          <div class="panel-title"><span>Equipment</span><span class="x">x</span></div>
+          <div class="panel-body">
+            <div class="slot-grid equip">
+              ${slot("helmet")}
+              ${slot("gasmask")}
+              ${slot("radio")}
+              ${slot("water")}
+              ${slot("boot")}
+              ${slot("medkit")}
+            </div>
+            <div class="stat-line"><span>Atk</span><b>184</b></div>
+            <div class="stat-line"><span>Def</span><b>92</b></div>
+            <div class="stat-line"><span>Crit</span><b>18%</b></div>
+          </div>
+        </section>
+
+        <!-- INVENTORY -->
+        <section class="panel inv">
+          <div class="panel-title"><span>Inventory</span><span class="x">x</span></div>
+          <div class="panel-body">
+            <div class="slot-grid">
+              ${slot("knife")}
+              ${slot("crowbar")}
+              ${slot("pistol")}
+              ${slot("baton")}
+              ${slot("medkit")}
+              ${slot("gasmask")}
+              ${slot("can")}
+              ${slot("battery")}
+              ${slot("ammo")}
+              ${slot("key")}
+              ${slot("wire")}
+              ${slot("scrap")}
+            </div>
+            <div class="currency-row">
+              <span class="currency">${icon("scrap")} 47</span>
+              <span class="currency">${icon("ammo")} 123</span>
+              <span class="currency">${icon("key")} 3</span>
+            </div>
+          </div>
+        </section>
+
+        <!-- RESULT -->
+        <section class="panel result">
+          <div class="panel-title"><span>Run Cleared</span><span class="x">x</span></div>
+          <div class="panel-body">
+            <div class="stars">${icon("star")}${icon("star")}${icon("star")}</div>
+            <div class="result-title">Extracted</div>
+            <div class="result-sub">Score: 2345</div>
+            <div class="result-actions">
+              <button class="pixel-btn">Again</button>
+              <button class="pixel-btn alt">Leave</button>
+            </div>
+          </div>
+        </section>
+      </div>
+    `;
+
+    const VARIANTS = [
+      { cls: "v-day", name: "01 · Concrete Daylight", ref: "municipal teal / rust accents" },
+      { cls: "v-night", name: "02 · Night Market", ref: "neon magenta / cyan" },
+      { cls: "v-rust", name: "03 · Rust Belt", ref: "weathered tan / hazard yellow" },
+      { cls: "v-muni", name: "04 · Municipal Tile", ref: "pale tile / subway blue" }
+    ];
+
+    document.getElementById("grid").innerHTML = VARIANTS.map(v => `
+      <article class="variant ${v.cls}">
+        <div class="variant-label">
+          <b>${v.name}</b>
+          <span>${v.ref}</span>
+        </div>
+        ${mock()}
+      </article>
+    `).join("");
+  </script>
+</body>
+</html>

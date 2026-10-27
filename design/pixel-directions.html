@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Idleness — Modern Pixel Directions</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;500;600;700&family=Silkscreen:wght@400;700&family=VT323&display=swap"
+    rel="stylesheet"
+  />
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 26px;
+      background: #0b0b0f;
+      color: #d8d8e0;
+      font-family: "Pixelify Sans", "Segoe UI", sans-serif;
+      font-size: 13px;
+    }
+
+    .page-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 18px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 3px solid #26262f;
+    }
+
+    .page-head h1 {
+      margin: 0;
+      font-family: "Silkscreen", monospace;
+      font-size: 18px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+
+    .page-head p {
+      margin: 0;
+      color: #8f8f9e;
+      font-size: 12px;
+      max-width: 620px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(480px, 1fr));
+      gap: 22px;
+      align-items: start;
+    }
+
+    .card {
+      background: var(--bg);
+      border: 3px solid var(--border);
+      box-shadow: 7px 7px 0 var(--shadow);
+      padding: 12px;
+      display: grid;
+      gap: 10px;
+      color: var(--text);
+      position: relative;
+      -webkit-font-smoothing: none;
+      font-smooth: never;
+      background-image:
+        linear-gradient(45deg, var(--dither) 25%, transparent 25%, transparent 75%, var(--dither) 75%),
+        linear-gradient(45deg, var(--dither) 25%, transparent 25%, transparent 75%, var(--dither) 75%);
+      background-size: 4px 4px;
+      background-position: 0 0, 2px 2px;
+    }
+
+    .card-label {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+      padding-bottom: 8px;
+      border-bottom: 3px solid var(--border);
+      font-family: "Silkscreen", monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .card-label b { color: var(--accent-2); font-weight: 700; }
+    .card-label span { color: var(--muted); }
+
+    /* ---------- Shared mock ---------- */
+    .ui { display: grid; gap: 9px; }
+
+    .ui-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-family: "Silkscreen", monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+
+    .place { display: flex; align-items: center; gap: 7px; }
+
+    .tag {
+      background: var(--accent);
+      color: var(--accent-text);
+      padding: 2px 5px;
+      font-size: 9px;
+      box-shadow: 2px 2px 0 var(--shadow);
+    }
+
+    .lv { color: var(--muted); }
+    .scrap { color: var(--accent-2); white-space: nowrap; }
+
+    .ui-tabs {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4px;
+      font-family: "Silkscreen", monospace;
+      font-size: 9px;
+      text-transform: uppercase;
+    }
+
+    .ui-tabs span {
+      text-align: center;
+      padding: 6px 4px;
+      border: 3px solid var(--border);
+      background: var(--panel-2);
+      color: var(--muted);
+      box-shadow: 3px 3px 0 var(--shadow);
+    }
+
+    .ui-tabs .on {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--accent-text);
+      box-shadow: 3px 3px 0 var(--shadow);
+    }
+
+    .arena {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 7px;
+      align-items: stretch;
+    }
+
+    .fighter {
+      border: 3px solid var(--border);
+      background: var(--panel);
+      padding: 8px;
+      display: grid;
+      gap: 6px;
+      min-width: 0;
+    }
+
+    .fighter.foe { box-shadow: inset 0 0 0 2px var(--panel-2); }
+    .fighter.you { box-shadow: inset 0 0 0 2px var(--panel-2); }
+
+    .fighter-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 6px;
+      font-family: "Silkscreen", monospace;
+      font-size: 9px;
+      text-transform: uppercase;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    .fighter-head .name { color: var(--text); }
+    .fighter-head .lv { color: var(--muted); font-size: 8px; }
+
+    .hpbar {
+      position: relative;
+      height: 13px;
+      border: 2px solid var(--border);
+      background: var(--panel-2);
+      overflow: hidden;
+    }
+
+    .hpbar i {
+      display: block;
+      height: 100%;
+      background: var(--good);
+      position: relative;
+    }
+
+    .hpbar.foe i { background: var(--bad); }
+
+    .hpbar i::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(90deg, transparent 0 9px, var(--panel-2) 9px 11px);
+    }
+
+    .hpnum {
+      font-family: "VT323", monospace;
+      font-size: 13px;
+      line-height: 1;
+      color: var(--muted);
+      text-align: right;
+    }
+
+    .meta {
+      font-family: "Silkscreen", monospace;
+      font-size: 8px;
+      text-transform: uppercase;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .vs {
+      align-self: center;
+      font-family: "Silkscreen", monospace;
+      font-size: 10px;
+      color: var(--accent-2);
+    }
+
+    .ui-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4px;
+    }
+
+    .stat {
+      border: 3px solid var(--border);
+      background: var(--panel-2);
+      padding: 6px 7px;
+      display: grid;
+      gap: 1px;
+      box-shadow: 2px 2px 0 var(--shadow);
+    }
+
+    .stat span {
+      font-family: "Silkscreen", monospace;
+      font-size: 8px;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    .stat b {
+      font-family: "VT323", monospace;
+      font-size: 18px;
+      font-weight: 400;
+      line-height: 1;
+      color: var(--text);
+    }
+
+    .log {
+      border: 3px solid var(--border);
+      background: var(--panel-2);
+      padding: 7px 8px;
+      display: grid;
+      gap: 2px;
+      font-family: "VT323", monospace;
+      font-size: 14px;
+      line-height: 1.05;
+      color: var(--muted);
+    }
+
+    .log b { color: var(--accent-2); font-weight: 400; }
+    .log .bad { color: var(--bad); }
+    .log .good { color: var(--good); }
+
+    .actions { display: grid; grid-template-columns: 2fr 1fr; gap: 6px; }
+
+    .actions button {
+      border: 3px solid var(--border);
+      background: var(--panel-2);
+      color: var(--text);
+      font-family: "Silkscreen", monospace;
+      font-size: 9px;
+      text-transform: uppercase;
+      padding: 9px 8px;
+      cursor: pointer;
+      box-shadow: 4px 4px 0 var(--shadow);
+      letter-spacing: 0.04em;
+    }
+
+    .actions button:active {
+      transform: translate(3px, 3px);
+      box-shadow: 1px 1px 0 var(--shadow);
+    }
+
+    .actions .primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--accent-text);
+    }
+
+    /* =========================================================
+       1. HI-BIT SLATE — modern default, amber + teal
+       ========================================================= */
+    .st-hibit {
+      --bg: #14161c;
+      --panel: #1d212b;
+      --panel-2: #252a36;
+      --border: #3c4353;
+      --shadow: #07080b;
+      --dither: rgba(255, 255, 255, 0.018);
+      --text: #e8ecf4;
+      --muted: #94a0b6;
+      --accent: #e0a458;
+      --accent-2: #5fc9b0;
+      --accent-text: #17120a;
+      --good: #7fbf8a;
+      --bad: #e06a5f;
+    }
+
+    /* =========================================================
+       2. RUST PIXEL — warm charcoal, rust + bone
+       ========================================================= */
+    .st-rustpix {
+      --bg: #17120e;
+      --panel: #221a14;
+      --panel-2: #2b2119;
+      --border: #4a3524;
+      --shadow: #080504;
+      --dither: rgba(255, 220, 180, 0.02);
+      --text: #f0e2cc;
+      --muted: #a89478;
+      --accent: #c9702f;
+      --accent-2: #e0b050;
+      --accent-text: #180d05;
+      --good: #8fa85a;
+      --bad: #c94f3f;
+    }
+
+    .st-rustpix .card,
+    .st-rustpix {
+      border-style: double;
+    }
+
+    /* =========================================================
+       3. PHOSPHOR CRT — green, scanlines, glow
+       ========================================================= */
+    .st-crt {
+      --bg: #050805;
+      --panel: #0a120a;
+      --panel-2: #0e1a0e;
+      --border: #2f6f3a;
+      --shadow: #000;
+      --dither: rgba(120, 255, 140, 0.02);
+      --text: #7dff8f;
+      --muted: #3f9f52;
+      --accent: #b6ff5c;
+      --accent-2: #7dff8f;
+      --accent-text: #031006;
+      --good: #7dff8f;
+      --bad: #ff6b5c;
+      text-shadow: 0 0 5px rgba(125, 255, 143, 0.35);
+    }
+
+    .st-crt::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.28) 0 1px, transparent 1px 3px);
+    }
+
+    .st-crt .card-label { border-bottom-style: double; }
+
+    /* =========================================================
+       4. DAYLIGHT PIXEL — light, hard black, offset print
+       ========================================================= */
+    .st-day {
+      --bg: #e6dfcf;
+      --panel: #f2ecdd;
+      --panel-2: #ded5c2;
+      --border: #2a2620;
+      --shadow: #6b6152;
+      --dither: rgba(40, 30, 20, 0.02);
+      --text: #24211c;
+      --muted: #6b6355;
+      --accent: #c24a2a;
+      --accent-2: #2f6f8f;
+      --accent-text: #fff6ec;
+      --good: #4f7d4a;
+      --bad: #a83a2e;
+    }
+
+    .st-day .hpbar { border-width: 3px; }
+    .st-day .fighter { box-shadow: none; }
+    .st-day .card-label { border-bottom-width: 3px; }
+    .st-day .stat b { color: #1a1814; }
+
+    /* =========================================================
+       5. TOXIC PIXEL — swamp green, acid lime
+       ========================================================= */
+    .st-toxic {
+      --bg: #0c110d;
+      --panel: #141d16;
+      --panel-2: #1b261d;
+      --border: #2d4a33;
+      --shadow: #040704;
+      --dither: rgba(200, 255, 160, 0.018);
+      --text: #dff0d8;
+      --muted: #93ab8f;
+      --accent: #9ad64a;
+      --accent-2: #d8ff5c;
+      --accent-text: #0c1405;
+      --good: #6fd08a;
+      --bad: #d95f4a;
+    }
+
+    .st-toxic .card-label { border-bottom-style: dashed; }
+
+    /* =========================================================
+       6. NEON PIXEL — indigo, magenta + cyan
+       ========================================================= */
+    .st-neon {
+      --bg: #0d0b18;
+      --panel: #17142a;
+      --panel-2: #1f1a38;
+      --border: #382f63;
+      --shadow: #05040a;
+      --dither: rgba(220, 200, 255, 0.02);
+      --text: #ece7ff;
+      --muted: #9b92c8;
+      --accent: #c05cff;
+      --accent-2: #4fe0d0;
+      --accent-text: #0f0716;
+      --good: #5fd08a;
+      --bad: #ff5c8a;
+    }
+
+    .st-neon .card-label b { text-shadow: 0 0 8px rgba(192, 92, 255, 0.5); }
+
+    @media (max-width: 1060px) {
+      .grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 620px) {
+      body { padding: 12px; }
+      .arena { grid-template-columns: 1fr; }
+      .vs { justify-self: center; }
+      .ui-stats { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <header class="page-head">
+    <h1>Modern Pixel — Six Directions</h1>
+    <p>
+      3px frames, hard shadows, segmented bars, pixel type. No hairline borders, no rounded
+      SaaS cards. Same combat layout in each so only the language changes.
+    </p>
+  </header>
+
+  <main class="grid" id="grid"></main>
+
+  <script>
+    const mock = () => `
+      <div class="ui-top">
+        <div class="place">
+          <span class="tag">War</span>
+          <span>Sunken Meadow</span>
+          <span class="lv">Lv 1</span>
+        </div>
+        <span class="scrap">⚙ 2,480</span>
+      </div>
+
+      <div class="ui-tabs">
+        <span class="on">Combat</span>
+        <span>Skills</span>
+        <span>Bank</span>
+        <span>Shop</span>
+      </div>
+
+      <div class="arena">
+        <div class="fighter foe">
+          <div class="fighter-head"><span class="name">Shambler</span><span class="lv">Lv 3</span></div>
+          <div class="hpbar foe"><i style="width: 72%"></i></div>
+          <div class="hpnum">72 / 100</div>
+          <div class="meta">Zombie · next hit 1.2s</div>
+        </div>
+
+        <div class="vs">VS</div>
+
+        <div class="fighter you">
+          <div class="fighter-head"><span class="name">You</span><span class="lv">Lv 12</span></div>
+          <div class="hpbar"><i style="width: 68%"></i></div>
+          <div class="hpnum">68 / 100</div>
+          <div class="meta">Next hit 0.8s</div>
+        </div>
+      </div>
+
+      <div class="ui-stats">
+        <div class="stat"><span>Atk</span><b>184</b></div>
+        <div class="stat"><span>Def</span><b>92</b></div>
+        <div class="stat"><span>Crit</span><b>18%</b></div>
+        <div class="stat"><span>Spd</span><b>1.4</b></div>
+      </div>
+
+      <div class="log">
+        <div><span class="good">&gt;</span> You hit Shambler for <b>24</b>.</div>
+        <div><span class="bad">&gt;</span> Shambler hits you for <b>8</b>.</div>
+        <div><span class="good">&gt;</span> Critical strike!</div>
+      </div>
+
+      <div class="actions">
+        <button class="primary">Engage</button>
+        <button>Flee</button>
+      </div>
+    `;
+
+    const THEMES = [
+      { cls: "st-hibit",   name: "01 · Hi-Bit Slate",   ref: "modern default · amber / teal" },
+      { cls: "st-rustpix", name: "02 · Rust Pixel",     ref: "warm · rust / bone" },
+      { cls: "st-crt",     name: "03 · Phosphor CRT",   ref: "green · scanlines / glow" },
+      { cls: "st-day",     name: "04 · Daylight Pixel", ref: "light · hard black frames" },
+      { cls: "st-toxic",   name: "05 · Toxic Pixel",    ref: "swamp · acid lime" },
+      { cls: "st-neon",    name: "06 · Neon Pixel",     ref: "indigo · magenta / cyan" }
+    ];
+
+    document.getElementById("grid").innerHTML = THEMES.map(theme => `
+      <article class="card ${theme.cls}">
+        <div class="card-label">
+          <b>${theme.name}</b>
+          <span>${theme.ref}</span>
+        </div>
+        ${mock()}
+      </article>
+    `).join("");
+  </script>
+</body>
+</html>

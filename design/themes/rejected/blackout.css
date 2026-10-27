@@ -1,0 +1,100 @@
+/* ============================================================
+   Idleness — Blackout theme tokens
+   Selected: 2026-10-26 · revised for chunky pixel chrome
+   Usage: <html data-theme="blackout"> or class="theme-blackout"
+   Rules: no 1px borders; frames are 4px + 3px inner bevel.
+   ============================================================ */
+
+:root[data-theme="blackout"],
+.theme-blackout {
+  /* ---------- Chrome ---------- */
+  --frame: #0b0908;
+  --frame-hi: #8a7a5f;
+  --frame-soft: #4a4236;
+  --frame-deep: #050404;
+
+  /* ---------- Surfaces ---------- */
+  --panel: #3a352d;
+  --panel-2: #322e27;
+  --slot: #26231e;
+  --slot-light: #5a5346;
+  --slot-dark: #12100d;
+
+  --title: #c98a3e;
+  --title-text: #171007;
+
+  --text: #f2ead8;
+  --muted: #b5a992;
+
+  --accent: #e0a458;
+  --accent-2: #f0c37e;
+  --accent-text: #1a1207;
+
+  --success: #8fae6a;
+  --danger: #d95f4a;
+  --info: #7fa0b8;
+  --warning: #e0a458;
+
+  --hp: var(--success);
+  --xp: var(--accent);
+  --focus: var(--accent-2);
+  --shadow: #000000;
+  --overlay: rgba(0, 0, 0, 0.7);
+
+  /* ---------- Scene ---------- */
+  --scene-sky: #0a0c10;
+  --scene-building: #14171c;
+  --scene-building-2: #1a1e24;
+  --scene-window: #e0a458;
+  --scene-road: #07080a;
+  --scene-line: #b5a992;
+  --scene-pole: #07080a;
+  --scene-glow: #e0a458;
+  --scene-fence: #4a4236;
+
+  /* ---------- Rarity ---------- */
+  --rarity-junk: #8a857a;
+  --rarity-common: #d8d2c4;
+  --rarity-rare: #6f9fd0;
+  --rarity-epic: #e0b050;
+  --rarity-guaranteed: #5fbfa8;
+
+  /* ---------- Factions ---------- */
+  --faction-zombies: #8fae5a;
+  --faction-cannibals: #c4554a;
+  --faction-bandits: #c9964a;
+  --faction-soldiers: #7fa0b8;
+  --faction-cultists: #d2743a;
+  --faction-mutants: #9a7fc0;
+  --faction-scavengers: #b39a6a;
+  --faction-directorate: #d8b04a;
+
+  /* ---------- Typography ---------- */
+  --font-display: "Jersey 10", "Silkscreen", monospace;
+  --font-ui: "Silkscreen", "Pixelify Sans", "Segoe UI", sans-serif;
+  --font-mono: "VT323", Consolas, monospace;
+
+  --text-xs: 10px;
+  --text-sm: 12px;
+  --text-md: 14px;
+  --text-lg: 18px;
+  --text-xl: 26px;
+  --text-2xl: 34px;
+
+  /* ---------- Spacing / shape ---------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+
+  --frame-width: 4px;
+  --frame-inset: 3px;
+  --control-width: 3px;
+  --slot-width: 3px;
+  --radius: 0;
+
+  --shadow-panel: 8px 8px 0 rgba(0, 0, 0, 0.6);
+  --shadow-control: 4px 4px 0 var(--frame);
+}

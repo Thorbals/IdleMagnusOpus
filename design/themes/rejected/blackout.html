@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="blackout">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Idleness — Blackout Theme (Rev 2)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Jersey+10&family=Silkscreen:wght@400;700&family=VT323&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="blackout.css" />
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 28px;
+      background: #07070a;
+      color: var(--text);
+      font-family: var(--font-ui);
+      font-size: var(--text-sm);
+      -webkit-font-smoothing: none;
+      font-smooth: never;
+    }
+
+    .page-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 22px;
+      padding-bottom: 14px;
+      border-bottom: var(--frame-width) solid var(--frame-soft);
+    }
+
+    .page-head h1 {
+      margin: 0;
+      font-family: var(--font-display);
+      font-size: 48px;
+      font-weight: 400;
+      line-height: 0.88;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--accent);
+      text-shadow: 3px 3px 0 var(--frame);
+    }
+
+    .head-meta {
+      display: grid;
+      gap: 6px;
+      text-align: right;
+      color: var(--muted);
+      font-size: var(--text-xs);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .head-meta b {
+      color: var(--text);
+      font-family: var(--font-display);
+      font-size: 20px;
+      font-weight: 400;
+      letter-spacing: 0.04em;
+    }
+
+    .chips { display: flex; gap: 4px; justify-content: flex-end; }
+
+    .chips span {
+      width: 17px;
+      height: 17px;
+      border: 3px solid var(--frame);
+    }
+
+    /* ---------- Stage ---------- */
+    .stage {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1fr 0.95fr 1.12fr;
+      grid-template-rows: auto auto;
+      gap: 15px;
+      padding: 20px;
+      min-height: 590px;
+      overflow: hidden;
+      background: var(--scene-sky);
+      border: var(--frame-width) solid var(--frame);
+      box-shadow: var(--shadow-panel);
+    }
+
+    .scene {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0.85;
+      pointer-events: none;
+    }
+
+    .stage > .panel { position: relative; z-index: 1; }
+
+    /* ---------- Panel chrome ---------- */
+    .panel {
+      background-color: var(--panel);
+      background-image: repeating-linear-gradient(
+        45deg,
+        rgba(255, 255, 255, 0.018) 0 2px,
+        transparent 2px 4px
+      );
+      border: var(--frame-width) solid var(--frame);
+      box-shadow:
+        inset 0 0 0 var(--frame-inset) var(--frame-hi),
+        inset 0 0 0 calc(var(--frame-inset) + 1px) var(--frame-deep),
+        7px 7px 0 rgba(0, 0, 0, 0.55);
+      display: grid;
+      grid-template-rows: auto 1fr;
+      min-width: 0;
+    }
+
+    .panel-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 6px 8px 4px;
+      background: var(--title);
+      color: var(--title-text);
+      border-bottom: var(--control-width) solid var(--frame);
+      font-family: var(--font-display);
+      font-size: 23px;
+      line-height: 1;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      text-shadow: none;
+    }
+
+    .panel-title .count {
+      font-family: var(--font-mono);
+      font-size: 16px;
+      line-height: 1;
+      color: var(--title-text);
+      opacity: 0.8;
+      margin-left: auto;
+    }
+
+    .panel-title .x {
+      width: 22px;
+      height: 22px;
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      background: var(--frame);
+      border: 2px solid var(--frame);
+      color: var(--accent);
+      font-family: var(--font-mono);
+      font-size: 15px;
+      line-height: 1;
+      box-shadow: inset 1px 1px 0 var(--frame-soft);
+    }
+
+    .panel-body {
+      padding: 11px;
+      display: grid;
+      gap: 9px;
+      align-content: start;
+    }
+
+    /* ---------- Slots ---------- */
+    .slot-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 6px;
+    }
+
+    .slot-grid.equip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .slot-grid.craft { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+    .slot {
+      aspect-ratio: 1 / 1;
+      display: grid;
+      place-items: center;
+      background: var(--slot);
+      border: var(--slot-width) solid var(--frame);
+      box-shadow:
+        inset 3px 3px 0 var(--slot-light),
+        inset -3px -3px 0 var(--slot-dark);
+      min-width: 0;
+    }
+
+    .slot svg { width: 74%; height: 74%; shape-rendering: crispEdges; }
+    .slot.big svg { width: 62%; height: 62%; }
+
+    /* ---------- Craft ---------- */
+    .craft-row {
+      display: grid;
+      grid-template-columns: 1fr auto 0.8fr;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .craft-arrow {
+      font-family: var(--font-display);
+      font-size: 28px;
+      color: var(--accent);
+      line-height: 1;
+      text-shadow: 2px 2px 0 var(--frame);
+    }
+
+    .recipe {
+      display: grid;
+      gap: 3px;
+      border-top: 2px dotted var(--frame-hi);
+      padding-top: 7px;
+    }
+
+    .recipe-name {
+      font-family: var(--font-display);
+      font-size: 20px;
+      line-height: 1;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--text);
+    }
+
+    .recipe-meta {
+      font-family: var(--font-ui);
+      font-size: 9px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 3px;
+    }
+
+    /* ---------- Stats ---------- */
+    .stat-line {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 19px;
+      line-height: 1.05;
+      color: var(--muted);
+      border-bottom: 2px dotted var(--frame-hi);
+      padding-bottom: 1px;
+    }
+
+    .stat-line b { color: var(--text); font-weight: 400; }
+
+    /* ---------- Inventory ---------- */
+    .inv { align-self: start; }
+
+    .currency-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      font-family: var(--font-mono);
+      font-size: 20px;
+      color: var(--text);
+      padding-top: 3px;
+    }
+
+    .currency { display: flex; align-items: center; gap: 5px; }
+    .currency svg { width: 20px; height: 20px; shape-rendering: crispEdges; }
+
+    /* ---------- Result ---------- */
+    .result {
+      grid-column: 1 / span 2;
+      grid-row: 2;
+      align-self: stretch;
+    }
+
+    .result .panel-body {
+      place-items: center;
+      text-align: center;
+      gap: 6px;
+      padding: 13px;
+    }
+
+    .stars { display: flex; gap: 6px; }
+    .stars svg { width: 40px; height: 40px; shape-rendering: crispEdges; }
+
+    .result-title {
+      font-family: var(--font-display);
+      font-size: 40px;
+      line-height: 1;
+      letter-spacing: 0.05em;
+      color: var(--text);
+      text-transform: uppercase;
+      text-shadow: 3px 3px 0 var(--frame);
+    }
+
+    .result-sub {
+      font-family: var(--font-mono);
+      font-size: 19px;
+      color: var(--muted);
+      line-height: 1;
+    }
+
+    .result-actions { display: flex; gap: 10px; margin-top: 5px; }
+
+    /* ---------- Buttons ---------- */
+    .pixel-btn {
+      border: var(--control-width) solid var(--frame);
+      background: var(--accent);
+      color: var(--accent-text);
+      font-family: var(--font-display);
+      font-size: 21px;
+      line-height: 1;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 7px 15px 5px;
+      cursor: pointer;
+      box-shadow:
+        inset 2px 2px 0 rgba(255, 255, 255, 0.3),
+        inset -2px -2px 0 rgba(0, 0, 0, 0.35),
+        var(--shadow-control);
+    }
+
+    .pixel-btn.alt { background: var(--panel-2); color: var(--text); }
+
+    .pixel-btn:active {
+      transform: translate(3px, 3px);
+      box-shadow:
+        inset 2px 2px 0 rgba(255, 255, 255, 0.3),
+        inset -2px -2px 0 rgba(0, 0, 0, 0.35),
+        1px 1px 0 var(--frame);
+    }
+
+    /* ---------- Token sheet ---------- */
+    .section-title {
+      margin: 34px 0 12px;
+      font-family: var(--font-display);
+      font-size: 27px;
+      font-weight: 400;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--text);
+      border-bottom: var(--frame-width) solid var(--frame-soft);
+      padding-bottom: 6px;
+    }
+
+    .tokens {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 10px;
+    }
+
+    .token {
+      background: var(--panel);
+      border: var(--control-width) solid var(--frame);
+      box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.5);
+      overflow: hidden;
+    }
+
+    .token-swatch { height: 56px; border-bottom: var(--control-width) solid var(--frame); }
+
+    .token-label {
+      padding: 6px 8px;
+      display: grid;
+      gap: 1px;
+      font-family: var(--font-mono);
+      font-size: 15px;
+      line-height: 1.05;
+    }
+
+    .token-label b {
+      font-family: var(--font-display);
+      font-size: 18px;
+      font-weight: 400;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--text);
+    }
+
+    .token-label span { color: var(--muted); }
+
+    .rarity-row, .faction-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(135px, 1fr));
+      gap: 8px;
+    }
+
+    .rarity, .faction {
+      border: var(--control-width) solid var(--frame);
+      background: var(--panel);
+      padding: 8px 10px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-display);
+      font-size: 19px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--text);
+    }
+
+    .rarity i, .faction i {
+      width: 16px;
+      height: 16px;
+      border: 2px solid var(--frame);
+      flex: 0 0 auto;
+    }
+
+    .type-sample {
+      background: var(--panel);
+      border: var(--control-width) solid var(--frame);
+      box-shadow: inset 0 0 0 2px var(--frame-hi);
+      padding: 15px;
+      display: grid;
+      gap: 9px;
+    }
+
+    .type-sample .display {
+      font-family: var(--font-display);
+      font-size: 36px;
+      line-height: 1;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--text);
+    }
+
+    .type-sample .ui { font-family: var(--font-ui); font-size: 11px; color: var(--muted); letter-spacing: 0.04em; text-transform: uppercase; }
+    .type-sample .mono { font-family: var(--font-mono); font-size: 21px; color: var(--text); }
+
+    @media (max-width: 840px) {
+      body { padding: 12px; }
+      .stage { grid-template-columns: 1fr 1fr; }
+      .inv { grid-column: 1 / span 2; }
+      .result { grid-column: 1 / span 2; grid-row: auto; }
+    }
+  </style>
+</head>
+<body>
+  <header class="page-head">
+    <h1>Blackout</h1>
+    <div class="head-meta">
+      <b>Selected Theme · Rev 2</b>
+      <span>Warm concrete · amber signage · chunky frames</span>
+      <div class="chips">
+        <span style="background: var(--panel)"></span>
+        <span style="background: var(--title)"></span>
+        <span style="background: var(--accent)"></span>
+        <span style="background: var(--text)"></span>
+      </div>
+    </div>
+  </header>
+
+  <section class="stage">
+    <svg class="scene" viewBox="0 0 900 600" preserveAspectRatio="xMidYMid slice" aria-hidden="true">
+      <rect width="900" height="600" fill="var(--scene-sky)"/>
+      <rect x="10" y="150" width="150" height="360" fill="var(--scene-building)"/>
+      <rect x="188" y="96" width="104" height="414" fill="var(--scene-building-2)"/>
+      <rect x="316" y="180" width="160" height="330" fill="var(--scene-building)"/>
+      <rect x="502" y="74" width="122" height="436" fill="var(--scene-building-2)"/>
+      <rect x="650" y="158" width="170" height="352" fill="var(--scene-building)"/>
+
+      <g fill="var(--scene-window)" opacity="0.62">
+        <rect x="30" y="174" width="10" height="10"/><rect x="52" y="174" width="10" height="10"/>
+        <rect x="74" y="174" width="10" height="10"/><rect x="30" y="198" width="10" height="10"/>
+        <rect x="52" y="198" width="10" height="10"/><rect x="74" y="198" width="10" height="10"/>
+        <rect x="30" y="222" width="10" height="10"/><rect x="74" y="222" width="10" height="10"/>
+        <rect x="204" y="118" width="10" height="10"/><rect x="226" y="118" width="10" height="10"/>
+        <rect x="248" y="118" width="10" height="10"/><rect x="204" y="142" width="10" height="10"/>
+        <rect x="226" y="142" width="10" height="10"/><rect x="248" y="142" width="10" height="10"/>
+        <rect x="204" y="166" width="10" height="10"/><rect x="248" y="166" width="10" height="10"/>
+        <rect x="338" y="204" width="10" height="10"/><rect x="362" y="204" width="10" height="10"/>
+        <rect x="386" y="204" width="10" height="10"/><rect x="338" y="228" width="10" height="10"/>
+        <rect x="362" y="228" width="10" height="10"/><rect x="386" y="228" width="10" height="10"/>
+        <rect x="338" y="252" width="10" height="10"/><rect x="386" y="252" width="10" height="10"/>
+        <rect x="524" y="98" width="10" height="10"/><rect x="548" y="98" width="10" height="10"/>
+        <rect x="572" y="98" width="10" height="10"/><rect x="524" y="122" width="10" height="10"/>
+        <rect x="548" y="122" width="10" height="10"/><rect x="572" y="122" width="10" height="10"/>
+        <rect x="524" y="146" width="10" height="10"/><rect x="572" y="146" width="10" height="10"/>
+        <rect x="672" y="182" width="10" height="10"/><rect x="696" y="182" width="10" height="10"/>
+        <rect x="720" y="182" width="10" height="10"/><rect x="672" y="206" width="10" height="10"/>
+        <rect x="696" y="206" width="10" height="10"/><rect x="720" y="206" width="10" height="10"/>
+        <rect x="672" y="230" width="10" height="10"/><rect x="720" y="230" width="10" height="10"/>
+      </g>
+
+      <g fill="var(--faction-cultists)" opacity="0.7">
+        <rect x="60" y="330" width="78" height="10"/>
+        <rect x="72" y="346" width="52" height="10"/>
+      </g>
+
+      <rect x="612" y="268" width="64" height="26" fill="var(--frame)"/>
+      <rect x="616" y="272" width="56" height="18" fill="var(--rarity-guaranteed)" opacity="0.55"/>
+      <rect x="620" y="276" width="10" height="10" fill="var(--frame)"/>
+      <rect x="634" y="276" width="26" height="4" fill="var(--frame)"/>
+      <rect x="634" y="284" width="18" height="4" fill="var(--frame)"/>
+      <circle cx="644" cy="281" r="44" fill="var(--rarity-guaranteed)" opacity="0.12"/>
+
+      <rect y="510" width="900" height="90" fill="var(--scene-road)"/>
+      <g fill="var(--scene-line)" opacity="0.5">
+        <rect x="30" y="552" width="62" height="7"/><rect x="146" y="552" width="62" height="7"/>
+        <rect x="262" y="552" width="62" height="7"/><rect x="378" y="552" width="62" height="7"/>
+        <rect x="494" y="552" width="62" height="7"/><rect x="610" y="552" width="62" height="7"/>
+        <rect x="726" y="552" width="62" height="7"/><rect x="842" y="552" width="40" height="7"/>
+      </g>
+
+      <rect x="790" y="254" width="8" height="256" fill="var(--scene-pole)"/>
+      <rect x="744" y="248" width="54" height="8" fill="var(--scene-pole)"/>
+      <rect x="738" y="238" width="16" height="9" fill="var(--scene-glow)"/>
+      <circle cx="746" cy="242" r="52" fill="var(--scene-glow)" opacity="0.14"/>
+
+      <g stroke="var(--scene-fence)" stroke-width="3" opacity="0.3">
+        <path d="M0 500 L900 546"/><path d="M0 546 L900 500"/>
+      </g>
+    </svg>
+
+    <section class="panel">
+      <div class="panel-title"><span>Craft</span><span class="x">x</span></div>
+      <div class="panel-body">
+        <div class="craft-row">
+          <div class="slot-grid craft" id="craft-slots"></div>
+          <div class="craft-arrow">&rarr;</div>
+          <div class="slot big" id="craft-result"></div>
+        </div>
+        <button class="pixel-btn create-btn">Create</button>
+        <div class="recipe">
+          <div class="recipe-name">Scrap Radio</div>
+          <div class="recipe-meta">Lv 4 · 2.0s · +45 XP</div>
+          <div class="stat-line"><span>Value</span><b>120</b></div>
+          <div class="stat-line"><span>Station</span><b>Bench</b></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-title"><span>Equipment</span><span class="x">x</span></div>
+      <div class="panel-body">
+        <div class="slot-grid equip" id="equip-slots"></div>
+        <div class="stat-line"><span>Atk</span><b>184</b></div>
+        <div class="stat-line"><span>Def</span><b>92</b></div>
+        <div class="stat-line"><span>Crit</span><b>18%</b></div>
+      </div>
+    </section>
+
+    <section class="panel inv">
+      <div class="panel-title"><span>Inventory</span><span class="count">9/12</span><span class="x">x</span></div>
+      <div class="panel-body">
+        <div class="slot-grid" id="inv-slots"></div>
+        <div class="currency-row" id="currency-row"></div>
+      </div>
+    </section>
+
+    <section class="panel result">
+      <div class="panel-title"><span>Run Cleared</span><span class="x">x</span></div>
+      <div class="panel-body">
+        <div class="stars" id="stars"></div>
+        <div class="result-title">Extracted</div>
+        <div class="result-sub">Score: 2345</div>
+        <div class="result-actions">
+          <button class="pixel-btn">Again</button>
+          <button class="pixel-btn alt">Leave</button>
+        </div>
+      </div>
+    </section>
+  </section>
+
+  <h2 class="section-title">Surfaces</h2>
+  <div class="tokens" id="surface-tokens"></div>
+
+  <h2 class="section-title">Rarity</h2>
+  <div class="rarity-row" id="rarity-row"></div>
+
+  <h2 class="section-title">Factions</h2>
+  <div class="faction-row" id="faction-row"></div>
+
+  <h2 class="section-title">Type</h2>
+  <div class="type-sample">
+    <div class="display">Blackout — Idleness</div>
+    <div class="ui">Silkscreen · labels, tags, small structure</div>
+    <div class="mono">VT323 · 0123456789 · HP 68/100 · ATK 184 · 18.4%</div>
+  </div>
+
+  <script>
+    const PALETTE = {
+      k: "#17171c", g: "#8a8f98", l: "#c8ccd4", d: "#4a4f58",
+      r: "#b23a2a", o: "#d9822b", y: "#e0c060", b: "#5b8fd6",
+      t: "#4fae9e", n: "#8a5a2b", G: "#6fae7b", w: "#e8e6e1",
+      p: "#b45cff", s: "#9aa3ad"
+    };
+
+    const ICONS = {
+      knife: ["............",".....ww.....","....wwww....","....wwww....","....wwww....","....wwww....","...kwwwwk...","...knnnnk...","....nnnn....","....nnnn....","............","............"],
+      crowbar: [".........rr.","........rr..",".......rr...","......rr....",".....rr.....","....rr......","...rr.......","..rr........",".rr.........","rr..........","............","............"],
+      pistol: ["............","............","..dddddd....",".dddddddd...",".dgggggggd..","....dddddd..","....dd......","....dd......","....dd......","............","............","............"],
+      baton: [".....kk.....",".....kk.....",".....kk.....",".....kk.....",".....kk.....",".....kk.....",".....kk.....","....nkkn....","....nnnn....","............","............","............"],
+      medkit: ["............","...kkkkkk...","..kwwwwwwk..","..kwwrrwwk..","..kwwrrwwk..","..kwrrrrwk..","..kwrrrrwk..","..kwwrrwwk..","..kwwrrwwk..","..kwwwwwwk..","...kkkkkk...","............"],
+      gasmask: ["............","...kkkkkk...","..kggggggk..","..kgkkkkgk..","..kgkttkgk..","..kgkttkgk..","..kggggggk..","...kggggk...","....kddk....","....kddk....",".....kk.....","............"],
+      can: ["............","...kkkkkk...","..kggggggk..","..krrrrrrk..","..krrrrrrk..","..krrrrrrk..","..krrrrrrk..","..kggggggk..","...kkkkkk...","............","............","............"],
+      battery: ["............","....kkkk....","....kyyk....","...kkkkkk...","...kyyyyk...","...kykkyk...","...kyyyyk...","...kykkyk...","...kyyyyk...","...kkkkkk...","............","............"],
+      ammo: ["............","..yy..yy....","..yy..yy....","..yy..yy....","..yy..yy....","..yy..yy....","..oo..oo....","..oo..oo....","............","............","............","............"],
+      key: ["............","...yyyy.....","..yy..yy....","..yy..yy....","...yyyy.....","....yy......","....yy......","....yy......","....yyy.....","....yy......","............","............"],
+      wire: ["............","...oooo.....","..oo..oo....","..oo..oo....","...oooo.....","..oooooo....",".oo....oo...",".oo....oo...","..oooooo....","............","............","............"],
+      helmet: ["............","...gggggg...","..gggggggg..",".gggggggggg.",".gggggggggg.",".gggggggggg.","..kkkkkkkk..","............","............","............","............","............"],
+      boot: ["............","....nnnn....","....nnnn....","....nnnn....","....nnnn....","....nnnnnn..","....nnnnnn..","..kknnnnnn..","..kkkkkkkk..","............","............","............"],
+      radio: ["............",".....k......","....k.......","..kkkkkkk...","..kdddddk...","..kdgggdk...","..kdgggdk...","..kdddddk...","..kkkkkkk...","............","............","............"],
+      water: ["............","....kkkk....","....kbbk....","...kkbbkk...","...kbbbbk...","...kbbbbk...","...kbbbbk...","...kbbbbk...","...kkkkkk...","............","............","............"],
+      scrap: ["............","....kkkk....","...kggggk...","..kggkkggk..","..kgk..kgk..","..kgk..kgk..","..kggkkggk..","...kggggk...","....kkkk....","............","............","............"],
+      star: [".....y......","....yyy.....","...yyyyy....",".yyyyyyyyy..","..yyyyyyy...","...yyyyy....","..yyy.yyy...",".yy.....yy..","............","............","............","............"]
+    };
+
+    const icon = (name) => {
+      const rows = ICONS[name] || ICONS.scrap;
+      const rects = rows.flatMap((row, y) =>
+        [...row].map((ch, x) => {
+          const fill = PALETTE[ch];
+          return fill ? `<rect x="${x}" y="${y}" width="1" height="1" fill="${fill}"/>` : "";
+        })
+      ).join("");
+      return `<svg viewBox="0 0 12 12" aria-hidden="true">${rects}</svg>`;
+    };
+
+    const slot = (name, extra = "") =>
+      `<div class="slot ${extra}">${name ? icon(name) : ""}</div>`;
+
+    document.getElementById("craft-slots").innerHTML =
+      slot("scrap") + slot("wire") + slot("battery") + slot("can");
+    document.getElementById("craft-result").innerHTML = icon("radio");
+
+    document.getElementById("equip-slots").innerHTML =
+      slot("helmet") + slot("gasmask") + slot("radio") +
+      slot("water") + slot("boot") + slot("medkit");
+
+    document.getElementById("inv-slots").innerHTML =
+      slot("knife") + slot("crowbar") + slot("pistol") + slot("baton") +
+      slot("medkit") + slot("gasmask") + slot("can") + slot("battery") +
+      slot("ammo") + slot("key") + slot("wire") + slot("scrap");
+
+    document.getElementById("currency-row").innerHTML = `
+      <span class="currency">${icon("scrap")} 47</span>
+      <span class="currency">${icon("ammo")} 123</span>
+      <span class="currency">${icon("key")} 3</span>
+    `;
+
+    document.getElementById("stars").innerHTML = icon("star") + icon("star") + icon("star");
+
+    const SURFACES = [
+      ["Frame", "var(--frame)"],
+      ["Frame Hi", "var(--frame-hi)"],
+      ["Panel", "var(--panel)"],
+      ["Panel 2", "var(--panel-2)"],
+      ["Slot", "var(--slot)"],
+      ["Title", "var(--title)"],
+      ["Accent", "var(--accent)"],
+      ["Text", "var(--text)"],
+      ["Muted", "var(--muted)"],
+      ["Success", "var(--success)"],
+      ["Danger", "var(--danger)"]
+    ];
+
+    document.getElementById("surface-tokens").innerHTML = SURFACES.map(([label, color]) => `
+      <div class="token">
+        <div class="token-swatch" style="background:${color}"></div>
+        <div class="token-label"><b>${label}</b><span>${color}</span></div>
+      </div>
+    `).join("");
+
+    const RARITIES = [
+      ["Junk", "var(--rarity-junk)"],
+      ["Common", "var(--rarity-common)"],
+      ["Rare", "var(--rarity-rare)"],
+      ["Epic", "var(--rarity-epic)"],
+      ["Guaranteed", "var(--rarity-guaranteed)"]
+    ];
+
+    document.getElementById("rarity-row").innerHTML = RARITIES.map(([label, color]) => `
+      <div class="rarity"><i style="background:${color}"></i>${label}</div>
+    `).join("");
+
+    const FACTIONS = [
+      ["Zombies", "var(--faction-zombies)"],
+      ["Cannibals", "var(--faction-cannibals)"],
+      ["Bandits", "var(--faction-bandits)"],
+      ["Soldiers", "var(--faction-soldiers)"],
+      ["Cultists", "var(--faction-cultists)"],
+      ["Mutants", "var(--faction-mutants)"],
+      ["Scavengers", "var(--faction-scavengers)"],
+      ["Directorate", "var(--faction-directorate)"]
+    ];
+
+    document.getElementById("faction-row").innerHTML = FACTIONS.map(([label, color]) => `
+      <div class="faction"><i style="background:${color}"></i>${label}</div>
+    `).join("");
+  </script>
+</body>
+</html>

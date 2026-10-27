@@ -1,0 +1,100 @@
+﻿/* ============================================================
+   Idleness - Night Market theme tokens
+   Selected: 2026-10-26 - title: Steel Blue (#3a5f8a)
+   Usage: <html data-theme="night-market"> or class="theme-night-market"
+   Rules: 4px panel frames, 3px controls, 2px slots, hard shadows.
+   ============================================================ */
+
+:root[data-theme="night-market"],
+.theme-night-market {
+  /* ---------- Chrome ---------- */
+  --frame: #0e0f14;
+  --frame-soft: #3a3d48;
+  --frame-deep: #08090c;
+
+  /* ---------- Surfaces ---------- */
+  --panel: #2a2c35;
+  --panel-2: #22242c;
+  --slot: #1a1c23;
+  --slot-light: #3a3d48;
+  --slot-dark: #0f1014;
+
+  /* ---------- Title (Steel Blue) ---------- */
+  --title: #3a5f8a;
+  --title-text: #eaf2ff;
+
+  /* ---------- Text / interaction ---------- */
+  --text: #e6e6ef;
+  --muted: #9a9cae;
+
+  --accent: #4fe0d0;
+  --accent-2: #7ff0e4;
+  --accent-text: #06201d;
+
+  --success: #6fae7b;
+  --danger: #d95f4a;
+  --info: #7fa0b8;
+  --warning: #e0a458;
+
+  --hp: var(--success);
+  --xp: var(--accent);
+  --focus: var(--accent-2);
+  --shadow: #000000;
+  --overlay: rgba(0, 0, 0, 0.66);
+
+  /* ---------- Scene ---------- */
+  --scene-sky: #0c0d12;
+  --scene-building: #12141a;
+  --scene-building-2: #171922;
+  --scene-window: #7fa8d8;
+  --scene-road: #08090c;
+  --scene-line: #d8d8e0;
+  --scene-pole: #08090c;
+  --scene-glow: #4fe0d0;
+  --scene-fence: #5a5d70;
+
+  /* ---------- Rarity ---------- */
+  --rarity-junk: #6f737c;
+  --rarity-common: #c9ccd2;
+  --rarity-rare: #5b93c9;
+  --rarity-epic: #d8a93f;
+  --rarity-guaranteed: #4fae9e;
+
+  /* ---------- Factions ---------- */
+  --faction-zombies: #7f9c4a;
+  --faction-cannibals: #b5473c;
+  --faction-bandits: #b8863b;
+  --faction-soldiers: #6f8fae;
+  --faction-cultists: #c2652f;
+  --faction-mutants: #8a6fb0;
+  --faction-scavengers: #a08a5a;
+  --faction-directorate: #c9a227;
+
+  /* ---------- Typography ---------- */
+  --font-display: "Jersey 10", "Silkscreen", monospace;
+  --font-ui: "Pixelify Sans", "Segoe UI", sans-serif;
+  --font-mono: "VT323", Consolas, monospace;
+
+  --text-xs: 10px;
+  --text-sm: 12px;
+  --text-md: 14px;
+  --text-lg: 18px;
+  --text-xl: 26px;
+  --text-2xl: 34px;
+
+  /* ---------- Spacing / shape ---------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+
+  --frame-width: 4px;
+  --control-width: 3px;
+  --slot-width: 2px;
+  --radius: 0;
+
+  --shadow-panel: 7px 7px 0 rgba(0, 0, 0, 0.55);
+  --shadow-control: 3px 3px 0 var(--frame);
+}

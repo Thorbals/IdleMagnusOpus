@@ -1,0 +1,79 @@
+const PALETTE = {
+  k: "#17171c",
+  g: "#8a8f98",
+  l: "#c8ccd4",
+  d: "#4a4f58",
+  r: "#b23a2a",
+  o: "#d9822b",
+  y: "#e0c060",
+  b: "#5b8fd6",
+  t: "#4fae9e",
+  n: "#8a5a2b",
+  G: "#6fae7b",
+  w: "#e8e6e1",
+  p: "#b45cff",
+  s: "#9aa3ad",
+};
+
+const ICONS = {
+  knife: ["............", ".....ww.....", "....wwww....", "....wwww....", "....wwww....", "....wwww....", "...kwwwwk...", "...knnnnk...", "....nnnn....", "....nnnn....", "............", "............"],
+  pistol: ["............", "............", "..dddddd....", ".dddddddd...", ".dgggggggd..", "....dddddd..", "....dd......", "....dd......", "....dd......", "............", "............", "............"],
+  crowbar: [".........rr.", "........rr..", ".......rr...", "......rr....", ".....rr.....", "....rr......", "...rr.......", "..rr........", ".rr.........", "rr..........", "............", "............"],
+  helmet: ["............", "...gggggg...", "..gggggggg..", ".gggggggggg.", ".gggggggggg.", ".gggggggggg.", "..kkkkkkkk..", "............", "............", "............", "............", "............"],
+  vest: ["............", "...kkkkkk...", "..kggggggk..", "..kgk..kgk..", "..kggggggk..", "..kggggggk..", "..kggggggk..", "..kgk..kgk..", "..kggggggk..", "...kkkkkk...", "............", "............"],
+  gloves: ["............", "..kk...kk...", ".kggk.kggk..", ".kggk.kggk..", ".kggk.kggk..", ".kggkkkggk..", ".kgggggggk..", "..kgggggk...", "...kkkkk....", "............", "............", "............"],
+  boot: ["............", "....nnnn....", "....nnnn....", "....nnnn....", "....nnnn....", "....nnnnnn..", "....nnnnnn..", "..kknnnnnn..", "..kkkkkkkk..", "............", "............", "............"],
+  shield: ["............", "...kkkkkk...", "..kggggggk..", "..kgttttgk..", "..kgttttgk..", "..kggggggk..", "..kggggggk..", "...kggggk...", "....kggk....", ".....kk.....", "............", "............"],
+  key: ["............", "...yyyy.....", "..yy..yy....", "..yy..yy....", "...yyyy.....", "....yy......", "....yy......", "....yy......", "....yyy.....", "....yy......", "............", "............"],
+  gasmask: ["............", "...kkkkkk...", "..kggggggk..", "..kgkkkkgk..", "..kgkttkgk..", "..kgkttkgk..", "..kggggggk..", "...kggggk...", "....kddk....", "....kddk....", ".....kk.....", "............"],
+  scrap: ["............", "....kkkk....", "...kggggk...", "..kggkkggk..", "..kgk..kgk..", "..kgk..kgk..", "..kggkkggk..", "...kggggk...", "....kkkk....", "............", "............", "............"],
+  ammo: ["............", "..yy..yy....", "..yy..yy....", "..yy..yy....", "..yy..yy....", "..yy..yy....", "..oo..oo....", "..oo..oo....", "............", "............", "............", "............"],
+  can: ["............", "...kkkkkk...", "..kggggggk..", "..krrrrrrk..", "..krrrrrrk..", "..krrrrrrk..", "..krrrrrrk..", "..kggggggk..", "...kkkkkk...", "............", "............", "............"],
+  medkit: ["............", "...kkkkkk...", "..kwwwwwwk..", "..kwwrrwwk..", "..kwwrrwwk..", "..kwrrrrwk..", "..kwrrrrwk..", "..kwwrrwwk..", "..kwwrrwwk..", "..kwwwwwwk..", "...kkkkkk...", "............"],
+  axe: ["............", "....kkkk....", "...kggggk...", "..kggggggk..", "..kggggggk..", "...kggggk...", "....kggk....", "....kggk....", "....kggk....", "....knnk....", "....knnk....", "............"],
+  pick: ["............", "..kkkkkkkk..", ".kggggggggk.", "..kkkggkkk..", ".....gg.....", ".....gg.....", ".....gg.....", ".....gg.....", ".....gg.....", ".....kk.....", "............", "............"],
+  fish: ["............", "............", "....kkkk....", "..kkttttkk..", ".kttttttttk.", ".kttkttttttk", "..kkttttkk..", "....kkkk....", "............", "............", "............", "............"],
+  leaf: ["............", "..........kk", "........kkGk", "......kkGGk.", "....kkGGk...", "...kGGk.....", "..kGGk......", ".kGGk.......", ".kkk........", "............", "............", "............"],
+  trap: ["............", "..kkkkkkkk..", "..kggggggk..", "..kgkggkgk..", "..kggggggk..", "..kgkggkgk..", "..kggggggk..", "..kkkkkkkk..", "............", "............", "............", "............"],
+  zombie: ["............", "....kkkk....", "...kGGGGk...", "...kGrGkk...", "...kGGGGk...", "....kGGk....", "...kGGGGk...", "..kGGGGGGk..", "..kGGGGGGk..", "...kGGGGk...", "............", "............"],
+  survivor: ["............", "....kkkk....", "...kssssk...", "...kskskk...", "...kssssk...", "....kssk....", "...kbbbbk...", "..kbbbbbbk..", "..kbbbbbbk..", "...kbbbbk...", "............", "............"],
+  star: [".....y......", "....yyy.....", "...yyyyy....", ".yyyyyyyyy..", "..yyyyyyy...", "...yyyyy....", "..yyy.yyy...", ".yy.....yy..", "............", "............", "............", "............"],
+  wood: ["............", "..kkkk......", ".knnnnk.....", ".knnnnk.....", "..knnnnk....", "..knnnnk....", "...knnnnk...", "...knnnnk...", "....knnnnk..", "....knnnnk..", ".....kkkk...", "............"],
+  stick: ["............", ".........kk.", "........knnk", ".......knnk.", "......knnk..", ".....knnk...", "....knnk....", "...knnk.....", "..knnk......", ".knnk.......", ".kkk........", "............"],
+  coal: ["............", "....kkkk....", "...kddddk...", "..kddddddk..", ".kdddkkdddk.", ".kddkkkkddk.", ".kddkkkkddk.", "..kddddddk..", "...kddddk...", "....kkkk....", "............", "............"],
+  ore: ["............", "....kkkk....", "...kggggk...", "..kggggggk..", ".kgggoogggk.", ".kggoooogggk", ".kgggoogggk.", "..kggggggk..", "...kggggk...", "....kkkk....", "............", "............"],
+  bar: ["............", "............", "..kkkkkkkk..", ".koooooooook", ".koooooooook", "..kkkkkkkk..", "...kooooook.", "...kooooook.", "....kkkkkk..", "............", "............", "............"],
+  cloth: ["............", "...kkkkkk...", "..kwwwwwwk..", "..kwttttwk..", "..kwttttwk..", "..kwwwwwwk..", "..kwttttwk..", "..kwttttwk..", "..kwwwwwwk..", "...kkkkkk...", "............", "............"],
+  meat: ["............", "...kkkkkk...", "..krrrrrrk..", ".krrwwrrrrk.", ".krwwrrrrrk.", ".krrrrrrrrk.", ".krrrrrrrrk.", "..krrrrrrk..", "...krrrrk...", "....kkkk....", "............", "............"],
+  geode: ["............", "....kkkk....", "...kggggk...", "..kggppggk..", ".kggppppggk.", ".kggppppggk.", ".kgggppgggk.", "..kggggggk..", "...kggggk...", "....kkkk....", "............", "............"],
+  heart: ["............", "..kkk..kkk..", ".krrrkkrrrk.", ".krrrrrrrrk.", ".krrrrrrrrk.", "..krrrrrrk..", "...krrrrk...", "....krrk....", ".....kk.....", "............", "............", "............"],
+  bomb: ["............", "........k...", ".......k....", "....kkkk....", "...kddddk...", "..kddddddk..", "..kddddddk..", "..kddddddk..", "...kddddk...", "....kkkk....", "............", "............"],
+  paw: ["............", "..kk....kk..", ".kggk..kggk.", ".kggk..kggk.", "..kk....kk..", "...kkkkkk...", "..kggggggk..", "..kggggggk..", "...kggggk...", "....kkkk....", "............", "............"],
+  sprout: ["............", ".....kk.....", "....kGGk....", "...kGGk.....", "..kkGGkk....", ".kGGkkGGk...", ".kGk..kGk...", "..k....k....", ".....kk.....", ".....kk.....", "............", "............"],
+  pot: ["............", "............", "..kkkkkkkk..", ".kddddddddk.", ".kgkkkkkkgk.", ".kddddddddk.", "..kddddddk..", "..kddddddk..", "...kkkkkk...", "............", "............", "............"],
+  hammer: ["............", "....kkkk....", "...kggggk...", "..kggggggk..", "..kggggggk..", "...kggggk...", "....knnk....", "....knnk....", "....knnk....", "....kkkk....", "............", "............"],
+  needle: ["............", "..........kk", ".........kwk", "........kwk.", ".......kwk..", "......kwk...", ".....kwk....", "....kwk.....", "...kwk......", "..kkk.......", "............", "............"],
+  bullet: ["............", "....kkkk....", "...kyyyyk...", "...kyyyyk...", "...kyyyyk...", "...koooook..", "....koook...", "....koook...", ".....kk.....", "............", "............", "............"],
+  wrench: ["............", "..kk...kk...", ".kggk.kggk..", ".kggkkkggk..", "..kgggggk...", "...kgggk....", "...kgggk....", "..kgggggk...", ".kggkkkggk..", ".kkk...kkk..", "............", "............"],
+  saw: ["............", "............", "..kkkkkkkk..", ".kggggggggk.", ".kgkgkgkgkgk", ".kggggggggk.", "..kkkkkkkk..", "....knnk....", "....knnk....", "....kkkk....", "............", "............"],
+  brick: ["............", "..kkkkkkkk..", "..krrrrrrk..", "..krkkkkrk..", "..krrrrrrk..", "..kkkkkkkk..", "..krrrrrrk..", "..krkkkkrk..", "..krrrrrrk..", "..kkkkkkkk..", "............", "............"],
+  flask: ["............", ".....kk.....", "....kggk....", "....kggk....", "...kggggk...", "..kgttttgk..", "..kgttttgk..", "..kgttttgk..", "...kggggk...", "....kkkk....", "............", "............"],
+  bolt: ["............", ".....kkk....", "....kyyk....", "...kyyk.....", "..kyyykkk...", ".kyyyyyyk...", "...kkyyyk...", "....kyyk....", "...kyyk.....", "...kkk......", "............", "............"],
+  skull: ["............", "...kkkkkk...", "..kwwwwwwk..", ".kwwkwwkwwk.", ".kwwkwwkwwk.", ".kwwwwwwwwk.", ".kwwwkkwwwk.", "..kwwwwwwk..", "...kwkwkwk..", "....kkkk....", "............", "............"],
+  crate: ["............", "..kkkkkkkk..", "..knnnnnnk..", "..knkkkknk..", "..knnnnnnk..", "..knkkkknk..", "..knnnnnnk..", "..kkkkkkkk..", "............", "............", "............", "............"],
+};
+
+export function icon(name, className = "") {
+  const rows = ICONS[name] ?? ICONS.scrap;
+  const rects = rows
+    .flatMap((row, y) =>
+      [...row].map((ch, x) => {
+        const fill = PALETTE[ch];
+        return fill ? `<rect x="${x}" y="${y}" width="1" height="1" fill="${fill}"/>` : "";
+      })
+    )
+    .join("");
+  return `<svg class="${className}" viewBox="0 0 12 12" shape-rendering="crispEdges" aria-hidden="true">${rects}</svg>`;
+}
+
+export const ICON_NAMES = Object.keys(ICONS);

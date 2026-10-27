@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Idleness — UI Direction</title>
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 26px;
+      background: #101010;
+      color: #d8d8d8;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 13px;
+    }
+
+    .page-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 18px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #2a2a2a;
+    }
+
+    .page-head h1 {
+      margin: 0;
+      font-family: "Arial Black", Arial, sans-serif;
+      font-size: 19px;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
+    }
+
+    .page-head p { margin: 0; color: #888; font-size: 12px; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(390px, 1fr));
+      gap: 20px;
+      align-items: start;
+    }
+
+    .card { background: #171717; border: 1px solid #2e2e2e; }
+
+    .card-label {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 7px 10px;
+      background: #1c1c1c;
+      border-bottom: 1px solid #2e2e2e;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 10px;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: #9a9a9a;
+    }
+
+    .card-label b { color: #dedede; font-weight: 600; }
+
+    /* =========================================================
+       Shared mock structure (each theme restyles it)
+       ========================================================= */
+    .ui {
+      position: relative;
+      padding: 12px;
+      display: grid;
+      gap: 9px;
+      min-height: 330px;
+      align-content: start;
+    }
+
+    .ui-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 11px;
+    }
+
+    .ui-top .who { font-weight: 600; letter-spacing: 0.04em; }
+    .ui-top .cur { font-family: Consolas, "Courier New", monospace; }
+
+    .ui-tabs {
+      display: flex;
+      gap: 0;
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .ui-tabs span { padding: 5px 9px; cursor: default; }
+
+    .ui-main { display: grid; gap: 9px; }
+
+    .bars { display: grid; gap: 7px; }
+
+    .bar-label {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .bar-label b { font-family: Consolas, "Courier New", monospace; font-weight: 500; }
+
+    .track { height: 9px; overflow: hidden; }
+
+    .track i { display: block; height: 100%; }
+
+    .stats { display: grid; gap: 4px; }
+
+    .stat {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 11px;
+    }
+
+    .stat span { text-transform: uppercase; letter-spacing: 0.06em; }
+    .stat b { font-family: Consolas, "Courier New", monospace; font-weight: 600; }
+
+    .slots { display: grid; grid-template-columns: repeat(6, 1fr); gap: 5px; }
+
+    .slot {
+      aspect-ratio: 1;
+      position: relative;
+      display: grid;
+      place-items: center;
+      font-family: Consolas, monospace;
+      font-size: 9px;
+      text-transform: uppercase;
+    }
+
+    .actions { display: flex; gap: 7px; }
+
+    .actions button {
+      flex: 1;
+      padding: 7px 8px;
+      font: inherit;
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      cursor: pointer;
+    }
+
+    .toast {
+      font-size: 10px;
+      padding: 6px 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .toast em { font-style: normal; font-weight: 700; }
+
+    /* =========================================================
+       1. INDUSTRIAL RUST — stencil, hard edges, rivets
+       ========================================================= */
+    .st-rust .ui {
+      background: #141210;
+      color: #d6cbb8;
+      border: 2px solid #3a2f22;
+      box-shadow: inset 0 0 0 2px #0b0a08;
+      font-family: "Arial Narrow", Arial, sans-serif;
+    }
+
+    .st-rust .ui-top {
+      border-bottom: 2px solid #3a2f22;
+      padding-bottom: 7px;
+      font-family: "Arial Black", Arial, sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .st-rust .who { color: #e8ddc8; }
+    .st-rust .cur { color: #c9a227; }
+    .st-rust .ui-tabs { border-bottom: 1px solid #3a2f22; }
+    .st-rust .ui-tabs span { color: #857763; border-right: 1px solid #3a2f22; }
+    .st-rust .ui-tabs .on { color: #0d0b08; background: #b5502a; }
+    .st-rust .bar-label { color: #8f8270; }
+    .st-rust .bar-label b { color: #d6cbb8; }
+    .st-rust .track { background: #0b0a08; border: 1px solid #3a2f22; }
+    .st-rust .hp i { background: #7c8b4a; }
+    .st-rust .xp i { background: #b5502a; }
+    .st-rust .stat { border-bottom: 1px dotted #3a2f22; padding-bottom: 3px; }
+    .st-rust .stat span { color: #8f8270; }
+    .st-rust .slot { background: #0b0a08; border: 1px solid #3a2f22; color: #6f6352; }
+    .st-rust .slot.epic { border-color: #c9a227; color: #c9a227; }
+    .st-rust .slot.rare { border-color: #5b7fa8; color: #5b7fa8; }
+    .st-rust .actions button {
+      background: #211b14;
+      color: #d6cbb8;
+      border: 2px solid #4a3b2a;
+      font-weight: 700;
+      font-family: "Arial Black", Arial, sans-serif;
+    }
+    .st-rust .actions .primary { background: #b5502a; border-color: #d2703f; color: #100b07; }
+    .st-rust .toast { border-left: 3px solid #b5502a; background: #0b0a08; color: #b7a98f; }
+
+    /* =========================================================
+       2. PIP-BOY — monochrome green, scanlines, glow
+       ========================================================= */
+    .st-pip .ui {
+      background: #051005;
+      color: #5dff7a;
+      border: 1px solid #2f8f43;
+      font-family: Consolas, "Courier New", monospace;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      overflow: hidden;
+      text-shadow: 0 0 6px rgba(93, 255, 122, 0.35);
+    }
+
+    .st-pip .ui::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.32) 0 1px, transparent 1px 3px);
+    }
+
+    .st-pip .ui-top {
+      border-bottom: 1px solid #2f8f43;
+      padding-bottom: 6px;
+      color: #5dff7a;
+    }
+
+    .st-pip .cur { color: #b7ffc3; }
+    .st-pip .ui-tabs { gap: 4px; color: #2f8f43; }
+    .st-pip .ui-tabs span { border: 1px solid #1f5f2d; padding: 3px 6px; }
+    .st-pip .ui-tabs .on { background: #2f8f43; color: #021a06; text-shadow: none; }
+    .st-pip .bar-label { color: #3fae55; }
+    .st-pip .bar-label b { color: #5dff7a; }
+    .st-pip .track { background: #021a06; border: 1px solid #1f5f2d; }
+    .st-pip .track i {
+      background: repeating-linear-gradient(90deg, #5dff7a 0 7px, transparent 7px 9px);
+    }
+    .st-pip .stat { border-bottom: 1px solid rgba(47, 143, 67, 0.35); padding-bottom: 2px; }
+    .st-pip .stat span { color: #3fae55; }
+    .st-pip .slot { border: 1px solid #1f5f2d; color: #2f8f43; }
+    .st-pip .slot.epic, .st-pip .slot.rare { border-color: #5dff7a; color: #5dff7a; }
+    .st-pip .actions button {
+      background: transparent;
+      border: 1px solid #2f8f43;
+      color: #5dff7a;
+      text-shadow: inherit;
+    }
+    .st-pip .actions .primary { background: #5dff7a; color: #021a06; text-shadow: none; }
+    .st-pip .toast { border: 1px dashed #2f8f43; color: #b7ffc3; }
+
+    /* =========================================================
+       3. RUNESCAPE / MELVOR — beveled tan, serif, old MMO
+       ========================================================= */
+    .st-rs .ui {
+      background: #3a2d20;
+      color: #f0e2c8;
+      border: 2px solid #6b5433;
+      box-shadow: inset 2px 2px 0 #8a6a3f, inset -2px -2px 0 #22190f;
+      font-family: Verdana, Geneva, sans-serif;
+    }
+
+    .st-rs .ui-top {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 12px;
+      color: #ffe9b8;
+      text-shadow: 1px 1px 0 #1a120a;
+      border-bottom: 2px groove #6b5433;
+      padding-bottom: 6px;
+    }
+
+    .st-rs .cur { color: #c8a04a; }
+    .st-rs .ui-tabs { gap: 3px; margin-top: 2px; }
+    .st-rs .ui-tabs span {
+      background: #4a3826;
+      border: 2px solid #6b5433;
+      box-shadow: inset 1px 1px 0 #8a6a3f, inset -1px -1px 0 #22190f;
+      color: #d8c49c;
+    }
+    .st-rs .ui-tabs .on { background: #6b5433; color: #fff2cf; }
+    .st-rs .bar-label { color: #cdb994; }
+    .st-rs .bar-label b { color: #fff2cf; }
+    .st-rs .track {
+      background: #1a120a;
+      border: 2px solid #6b5433;
+      box-shadow: inset 1px 1px 0 #000;
+    }
+    .st-rs .hp i { background: linear-gradient(#8fbf6a, #4f7d3a); }
+    .st-rs .xp i { background: linear-gradient(#e0c060, #a07820); }
+    .st-rs .stat { border-bottom: 1px solid #5a452a; padding-bottom: 3px; }
+    .st-rs .stat span { color: #c8b48e; }
+    .st-rs .slot {
+      background: #2a1f14;
+      border: 2px solid #6b5433;
+      box-shadow: inset 1px 1px 0 #8a6a3f, inset -1px -1px 0 #22190f;
+    }
+    .st-rs .slot.epic { border-color: #d8b13a; }
+    .st-rs .slot.rare { border-color: #7fa8d8; }
+    .st-rs .actions button {
+      background: linear-gradient(#c8a04a, #9a742f);
+      border: 2px solid #5a4522;
+      box-shadow: inset 1px 1px 0 #f0d48a, inset -1px -1px 0 #6b4f23;
+      color: #2b1f10;
+      font-weight: 700;
+      font-family: Georgia, serif;
+    }
+    .st-rs .actions .primary { background: linear-gradient(#e0c060, #b88a30); }
+    .st-rs .toast {
+      background: #2a1f14;
+      border: 2px solid #6b5433;
+      color: #ffe9b8;
+    }
+
+    /* =========================================================
+       4. DIABLO — black, blood, gold, serif
+       ========================================================= */
+    .st-diablo .ui {
+      background: radial-gradient(circle at 50% -20%, #241313, #0a0707 72%);
+      color: #d8c7a8;
+      border: 1px solid #5a3a22;
+      box-shadow: inset 0 0 0 3px #0a0707, inset 0 0 0 4px #3a2416;
+      font-family: Georgia, "Times New Roman", serif;
+    }
+
+    .st-diablo .ui-top {
+      font-variant: small-caps;
+      letter-spacing: 0.08em;
+      color: #e8d8b8;
+      border-bottom: 1px solid #4a2e1e;
+      padding-bottom: 7px;
+      font-size: 13px;
+    }
+
+    .st-diablo .cur { color: #b08d57; }
+    .st-diablo .ui-tabs { font-variant: small-caps; gap: 2px; }
+    .st-diablo .ui-tabs span { color: #8a755a; border-bottom: 1px solid transparent; }
+    .st-diablo .ui-tabs .on { color: #e8d8b8; border-bottom-color: #8b1a1a; }
+    .st-diablo .bar-label { color: #8a755a; font-variant: small-caps; }
+    .st-diablo .bar-label b { color: #d8c7a8; }
+    .st-diablo .track {
+      background: #0a0707;
+      border: 1px solid #3a2416;
+      box-shadow: inset 0 1px 3px #000;
+      height: 10px;
+    }
+    .st-diablo .hp i { background: linear-gradient(#a02020, #5a0d0d); }
+    .st-diablo .xp i { background: linear-gradient(#b08d57, #6b4a20); }
+    .st-diablo .stat { border-bottom: 1px solid #2a1a12; padding-bottom: 3px; }
+    .st-diablo .stat span { color: #8a755a; }
+    .st-diablo .stat b { color: #e0cfae; }
+    .st-diablo .slot { background: #0a0707; border: 1px solid #3a2416; }
+    .st-diablo .slot.epic { border-color: #b08d57; box-shadow: 0 0 4px rgba(176, 141, 87, 0.4); }
+    .st-diablo .slot.rare { border-color: #4f6f9f; }
+    .st-diablo .actions button {
+      background: linear-gradient(#1a120e, #0d0808);
+      border: 1px solid #5a3a22;
+      color: #c8b48e;
+      font-family: Georgia, serif;
+      font-variant: small-caps;
+      letter-spacing: 0.12em;
+    }
+    .st-diablo .actions .primary { border-color: #8b1a1a; color: #f0d8c0; }
+    .st-diablo .toast { border: 1px solid #3a2416; border-left: 3px solid #8b1a1a; color: #c8b48e; }
+
+    /* =========================================================
+       5. TERMINAL TUI — ASCII only, no chrome
+       ========================================================= */
+    .st-term .ui {
+      background: #000;
+      color: #39ff6a;
+      padding: 10px 12px;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 11px;
+      line-height: 1.32;
+      min-height: 330px;
+    }
+
+    .st-term pre { margin: 0; font: inherit; white-space: pre; }
+    .st-term .dim { color: #1f8f3f; }
+    .st-term .hot { color: #d8ff60; }
+    .st-term .rev { background: #39ff6a; color: #000; }
+    .st-term .cursor { animation: blink 1s steps(1) infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+
+    /* =========================================================
+       6. PAPER DOSSIER — typewriter, stamps, form fields
+       ========================================================= */
+    .st-paper .ui {
+      background:
+        repeating-linear-gradient(0deg, rgba(80, 60, 30, 0.045) 0 1px, transparent 1px 3px),
+        #efe7d2;
+      color: #2a241a;
+      border: 1px solid #b8a98c;
+      box-shadow: 5px 5px 0 #b8a98c;
+      font-family: "Courier New", Courier, monospace;
+    }
+
+    .st-paper .ui::before {
+      content: "PRIORITY";
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 2px 6px;
+      border: 2px solid #9d2b1f;
+      color: #9d2b1f;
+      font: 700 10px/1.2 "Courier New", monospace;
+      letter-spacing: 0.14em;
+      transform: rotate(9deg);
+      opacity: 0.8;
+      pointer-events: none;
+    }
+
+    .st-paper .ui-top {
+      border-bottom: 2px solid #2a241a;
+      padding-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .st-paper .who { font-weight: 700; }
+    .st-paper .ui-tabs { gap: 0; border-bottom: 1px solid #8a7c62; }
+    .st-paper .ui-tabs span {
+      border: 1px solid #2a241a;
+      border-bottom: 0;
+      margin-right: 3px;
+      background: #e2d8bf;
+      font-weight: 700;
+    }
+    .st-paper .ui-tabs .on { background: #2a241a; color: #efe7d2; }
+    .st-paper .bar-label { color: #6a5c44; }
+    .st-paper .track { background: #d8cdb2; border: 1px solid #2a241a; height: 10px; }
+    .st-paper .hp i { background: #9d2b1f; }
+    .st-paper .xp i { background: #2a241a; }
+    .st-paper .stat { border-bottom: 1px dotted #8a7c62; padding-bottom: 2px; }
+    .st-paper .stat span { color: #6a5c44; }
+    .st-paper .slot { border: 1px solid #2a241a; background: #e2d8bf; }
+    .st-paper .slot.epic { background: #d8b13a; }
+    .st-paper .slot.rare { background: #7fa8d8; }
+    .st-paper .actions button {
+      background: #efe7d2;
+      border: 2px solid #2a241a;
+      color: #2a241a;
+      font-weight: 700;
+      font-family: "Courier New", monospace;
+    }
+    .st-paper .actions .primary { background: #9d2b1f; border-color: #9d2b1f; color: #f4ecd8; }
+    .st-paper .toast { border: 1px solid #2a241a; background: #e2d8bf; }
+
+    /* =========================================================
+       7. INDUSTRIAL HUD (STALKER) — olive, hazard stripe, bolts
+       ========================================================= */
+    .st-stalker .ui {
+      background: #1b1a13;
+      color: #cfc9a8;
+      border: 1px solid #4a4632;
+      font-family: Consolas, "Courier New", monospace;
+      padding-top: 0;
+    }
+
+    .st-stalker .ui::before {
+      content: "";
+      display: block;
+      height: 7px;
+      margin: 0 -12px 10px;
+      background: repeating-linear-gradient(45deg, #b5a642 0 7px, #1b1a13 7px 14px);
+      border-bottom: 1px solid #4a4632;
+    }
+
+    .st-stalker .ui-top {
+      border-bottom: 1px solid #4a4632;
+      padding-bottom: 6px;
+      font-size: 10px;
+      letter-spacing: 0.12em;
+    }
+
+    .st-stalker .who { font-family: "Arial Black", Arial, sans-serif; color: #d8d2b0; }
+    .st-stalker .cur { color: #b5a642; }
+    .st-stalker .ui-tabs { border-bottom: 1px solid #4a4632; }
+    .st-stalker .ui-tabs span { color: #7f7a5e; border-right: 1px solid #4a4632; }
+    .st-stalker .ui-tabs .on { color: #16150f; background: #b5a642; }
+    .st-stalker .bar-label { color: #8f8a68; }
+    .st-stalker .bar-label b { color: #cfc9a8; }
+    .st-stalker .track { background: #0f0e0a; border: 1px solid #4a4632; }
+    .st-stalker .track i {
+      background: repeating-linear-gradient(90deg, #8f9a4a 0 10px, transparent 10px 12px);
+    }
+    .st-stalker .xp i {
+      background: repeating-linear-gradient(90deg, #b5a642 0 10px, transparent 10px 12px);
+    }
+    .st-stalker .stat { border-bottom: 1px dashed #3a3626; padding-bottom: 3px; }
+    .st-stalker .stat span { color: #8f8a68; }
+    .st-stalker .slot { background: #0f0e0a; border: 1px solid #4a4632; }
+    .st-stalker .slot.epic { border-color: #b5a642; color: #b5a642; }
+    .st-stalker .actions button {
+      background: #26241a;
+      border: 1px solid #4a4632;
+      color: #cfc9a8;
+      font-family: Consolas, monospace;
+    }
+    .st-stalker .actions .primary { background: #b5a642; color: #16150f; border-color: #d8c860; }
+    .st-stalker .toast { border: 1px solid #4a4632; border-left: 3px solid #b5a642; }
+
+    /* =========================================================
+       8. PIXEL ROGUELIKE — chunky, hard shadow, limited palette
+       ========================================================= */
+    .st-pixel .ui {
+      background: #1a1a2e;
+      color: #e8e8f0;
+      border: 3px solid #0a0a12;
+      box-shadow: 6px 6px 0 #000;
+      font-family: Consolas, "Courier New", monospace;
+      text-transform: uppercase;
+      image-rendering: pixelated;
+    }
+
+    .st-pixel .ui-top {
+      border-bottom: 3px solid #0a0a12;
+      padding-bottom: 6px;
+      font-weight: 700;
+    }
+
+    .st-pixel .cur { color: #e0c060; }
+    .st-pixel .ui-tabs { gap: 3px; }
+    .st-pixel .ui-tabs span {
+      background: #2a2a44;
+      border: 2px solid #0a0a12;
+      font-weight: 700;
+    }
+    .st-pixel .ui-tabs .on { background: #e05a5a; color: #101018; }
+    .st-pixel .bar-label { color: #9a9ab8; }
+    .st-pixel .bar-label b { color: #fff; }
+    .st-pixel .track { background: #101018; border: 2px solid #0a0a12; height: 10px; }
+    .st-pixel .hp i { background: #e05a5a; }
+    .st-pixel .xp i { background: #e0c060; }
+    .st-pixel .stat { border-bottom: 2px dotted #3a3a5a; padding-bottom: 3px; }
+    .st-pixel .stat span { color: #9a9ab8; }
+    .st-pixel .slot { background: #2a2a44; border: 2px solid #0a0a12; }
+    .st-pixel .slot.epic { background: #e0c060; }
+    .st-pixel .slot.rare { background: #6a8fd8; }
+    .st-pixel .slot.common { background: #b8b8c8; }
+    .st-pixel .actions button {
+      background: #e0c060;
+      border: 3px solid #0a0a12;
+      box-shadow: 3px 3px 0 #000;
+      color: #101018;
+      font-weight: 700;
+      font-family: Consolas, monospace;
+    }
+    .st-pixel .actions .primary { background: #e05a5a; }
+    .st-pixel .toast { background: #101018; border: 2px solid #e0c060; color: #e8e8f0; }
+
+    /* =========================================================
+       9. BRUTALIST ZINE — light, hard black, offset print
+       ========================================================= */
+    .st-zine .ui {
+      background: #f4f1e8;
+      color: #111;
+      border: 3px solid #111;
+      box-shadow: 8px 8px 0 #111;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    .st-zine .ui-top {
+      border-bottom: 3px solid #111;
+      padding-bottom: 6px;
+      font-family: "Arial Black", Arial, sans-serif;
+      font-size: 13px;
+      text-transform: uppercase;
+    }
+
+    .st-zine .cur { color: #ff3b00; }
+    .st-zine .ui-tabs { gap: 3px; margin-top: 2px; }
+    .st-zine .ui-tabs span {
+      border: 2px solid #111;
+      background: #fff;
+      font-weight: 700;
+    }
+    .st-zine .ui-tabs .on { background: #ff3b00; color: #fff; }
+    .st-zine .bar-label { font-weight: 700; }
+    .st-zine .track { background: #fff; border: 2px solid #111; height: 10px; }
+    .st-zine .hp i { background: #111; }
+    .st-zine .xp i { background: #0033ff; }
+    .st-zine .stat { border-bottom: 2px solid #111; padding-bottom: 3px; font-weight: 700; }
+    .st-zine .slot { border: 2px solid #111; background: #fff; font-weight: 700; }
+    .st-zine .slot.epic { background: #ff3b00; color: #fff; }
+    .st-zine .slot.rare { background: #0033ff; color: #fff; }
+    .st-zine .actions button {
+      border: 3px solid #111;
+      background: #fff;
+      color: #111;
+      font-family: "Arial Black", Arial, sans-serif;
+      box-shadow: 4px 4px 0 #111;
+    }
+    .st-zine .actions .primary { background: #111; color: #fff; }
+    .st-zine .toast { border: 2px solid #111; background: #d8ff60; font-weight: 700; }
+
+    @media (max-width: 860px) {
+      body { padding: 14px; }
+      .grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="page-head">
+    <h1>UI Direction — Not Just Palettes</h1>
+    <p>Same content, different design languages. Pick a direction, not a color.</p>
+  </header>
+
+  <main class="grid" id="grid"></main>
+
+  <script>
+    const standardMock = () => `
+      <div class="ui-top">
+        <span class="who">Scavenger // Lv 12</span>
+        <span class="cur">⚙ 2,480</span>
+      </div>
+
+      <div class="ui-tabs">
+        <span class="on">Combat</span><span>Skills</span><span>Bank</span><span>Shop</span>
+      </div>
+
+      <div class="ui-main">
+        <div class="bars">
+          <div class="bar">
+            <div class="bar-label"><span>Health</span><b>68 / 100</b></div>
+            <div class="track hp"><i style="width: 68%"></i></div>
+          </div>
+          <div class="bar">
+            <div class="bar-label"><span>Mining 27</span><b>3,140 / 5,000</b></div>
+            <div class="track xp"><i style="width: 62%"></i></div>
+          </div>
+        </div>
+
+        <div class="stats">
+          <div class="stat"><span>Attack</span><b>184</b></div>
+          <div class="stat"><span>Defense</span><b>92</b></div>
+          <div class="stat"><span>Crit</span><b>18.4%</b></div>
+        </div>
+
+        <div class="slots">
+          <div class="slot epic">W</div>
+          <div class="slot rare">B</div>
+          <div class="slot common">H</div>
+          <div class="slot">G</div>
+          <div class="slot rare">F</div>
+          <div class="slot">A</div>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button class="primary">Engage</button>
+        <button>Flee</button>
+      </div>
+
+      <div class="toast">Rare drop: <em>Military Knife</em></div>
+    `;
+
+    const asciiMock = () => `
+      <pre><span class="dim">+--[ </span><span class="hot">SCAVENGER</span><span class="dim"> ]----------------+</span>
+<span class="dim">|</span> LV 12              <span class="dim">SCRAP</span> <span class="hot">2480</span> <span class="dim">|</span>
+<span class="dim">+----------------------------------+</span>
+<span class="dim">|</span> <span class="rev"> COMBAT </span> SKILLS  BANK  SHOP     <span class="dim">|</span>
+<span class="dim">+----------------------------------+</span>
+<span class="dim">|</span> HP    <span class="hot">[#########-------]</span>  68/100 <span class="dim">|</span>
+<span class="dim">|</span> MINE  <span class="hot">[############----]</span>  62%    <span class="dim">|</span>
+<span class="dim">|</span>                                  <span class="dim">|</span>
+<span class="dim">|</span> ATK 184    DEF 92    CRT 18.4%   <span class="dim">|</span>
+<span class="dim">|</span>                                  <span class="dim">|</span>
+<span class="dim">|</span> [W]eapon  [B]ody  [H]elm  [G]love <span class="dim">|</span>
+<span class="dim">|</span> [F]eet    [A]cc                  <span class="dim">|</span>
+<span class="dim">|</span>                                  <span class="dim">|</span>
+<span class="dim">|</span> <span class="rev"> E </span>ngage   <span class="rev"> F </span>lee           <span class="dim">|</span>
+<span class="dim">|</span> &gt; rare drop: military knife     <span class="dim">|</span>
+<span class="dim">+----------------------------------+</span>
+<span class="hot">&gt;</span> <span class="cursor">█</span></pre>
+    `;
+
+    const THEMES = [
+      { cls: "st-rust",   name: "01 · Industrial Rust",  ref: "stencil / hard edges / rivets" },
+      { cls: "st-pip",    name: "02 · Pip-Boy CRT",      ref: "mono green / scanlines / glow" },
+      { cls: "st-rs",     name: "03 · Old-School MMO",   ref: "beveled tan / serif / 2004" },
+      { cls: "st-diablo", name: "04 · Grimdark ARPG",    ref: "black / blood / gold / serif" },
+      { cls: "st-term",   name: "05 · Terminal TUI",     ref: "ASCII / no chrome / keyboard" },
+      { cls: "st-paper",  name: "06 · Paper Dossier",    ref: "typewriter / stamps / form" },
+      { cls: "st-stalker",name: "07 · Zone HUD",         ref: "olive / hazard stripe / grim" },
+      { cls: "st-pixel",  name: "08 · Pixel Roguelike",  ref: "chunky / hard shadow / pips" },
+      { cls: "st-zine",   name: "09 · Brutalist Zine",   ref: "light / black rules / print" }
+    ];
+
+    document.getElementById("grid").innerHTML = THEMES.map(theme => `
+      <article class="card ${theme.cls}">
+        <div class="card-label">
+          <b>${theme.name}</b>
+          <span>${theme.ref}</span>
+        </div>
+        <div class="ui">
+          ${theme.cls === "st-term" ? asciiMock() : standardMock()}
+        </div>
+      </article>
+    `).join("");
+  </script>
+</body>
+</html>

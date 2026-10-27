@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Idleness — Theme Picker</title>
+  <style>
+    /* ---------- Page chrome ---------- */
+    :root {
+      --page-bg: #08090b;
+      --page-text: #e8e6e1;
+      --page-muted: #9aa3b2;
+      --font-ui: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+      --font-mono: "Cascadia Mono", "Consolas", ui-monospace, monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 28px;
+      background: var(--page-bg);
+      color: var(--page-text);
+      font-family: var(--font-ui);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .page-header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 22px;
+    }
+
+    .page-header h1 {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+    }
+
+    .page-header p {
+      margin: 0;
+      color: var(--page-muted);
+      font-size: 12px;
+    }
+
+    /* ---------- Theme grid ---------- */
+    .theme-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+      gap: 18px;
+      align-items: start;
+    }
+
+    .theme-card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      overflow: hidden;
+      color: var(--text);
+      font-family: var(--font-ui);
+    }
+
+    .theme-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--border);
+      background: var(--panel);
+    }
+
+    .theme-head h2 {
+      margin: 0;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: 0.01em;
+    }
+
+    .swatches { display: flex; gap: 4px; }
+
+    .swatches span {
+      width: 14px;
+      height: 14px;
+      border-radius: 3px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+    }
+
+    /* ---------- Mock UI ---------- */
+    .mock { padding: 12px; display: grid; gap: 10px; }
+
+    .mock-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .mock-top .who {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    .mock-top .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent-2);
+    }
+
+    .mock-top .scrap {
+      font-family: var(--font-mono);
+      color: var(--accent-2);
+      font-size: 11px;
+    }
+
+    .mock-nav {
+      display: flex;
+      gap: 2px;
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 3px;
+      font-size: 10px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .mock-nav span {
+      flex: 1;
+      text-align: center;
+      padding: 5px 2px;
+      border-radius: 4px;
+      color: var(--muted);
+    }
+
+    .mock-nav span.active {
+      background: var(--panel-2);
+      color: var(--accent-2);
+      box-shadow: inset 0 -2px 0 var(--accent);
+    }
+
+    .mock-panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 10px;
+      display: grid;
+      gap: 8px;
+    }
+
+    .bar-group { display: grid; gap: 4px; }
+
+    .bar-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 10px;
+      color: var(--muted);
+    }
+
+    .bar-label b {
+      font-family: var(--font-mono);
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .bar {
+      height: 7px;
+      border-radius: 999px;
+      background: var(--panel-2);
+      overflow: hidden;
+      border: 1px solid var(--border);
+    }
+
+    .bar i {
+      display: block;
+      height: 100%;
+      border-radius: 999px;
+    }
+
+    .bar.hp i { background: var(--good); }
+    .bar.xp i { background: var(--accent); }
+
+    .stat-rows { display: grid; gap: 5px; }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 11px;
+      padding-bottom: 4px;
+      border-bottom: 1px dashed var(--border);
+    }
+
+    .stat-row:last-child { border-bottom: 0; padding-bottom: 0; }
+    .stat-row span { color: var(--muted); }
+    .stat-row b { font-family: var(--font-mono); font-weight: 500; }
+
+    .slots {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 5px;
+    }
+
+    .slot {
+      aspect-ratio: 1;
+      border-radius: 4px;
+      background: var(--panel-2);
+      border: 1px solid var(--border);
+      position: relative;
+    }
+
+    .slot::after {
+      content: "";
+      position: absolute;
+      inset: 6px;
+      border-radius: 2px;
+      background: var(--slot-color, var(--border));
+      opacity: 0.55;
+    }
+
+    .slot.common { --slot-color: var(--common); }
+    .slot.rare { --slot-color: var(--rare); }
+    .slot.epic { --slot-color: var(--epic); }
+    .slot.junk { --slot-color: var(--junk); }
+
+    .mock-actions { display: flex; gap: 6px; }
+
+    .btn {
+      flex: 1;
+      border: 1px solid var(--border);
+      background: var(--panel-2);
+      color: var(--text);
+      border-radius: 5px;
+      padding: 7px 8px;
+      font-family: var(--font-ui);
+      font-size: 11px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .btn.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: var(--accent-text, #111);
+    }
+
+    .toast {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--accent-2);
+      background: var(--panel);
+      border-radius: 5px;
+      padding: 7px 9px;
+      font-size: 11px;
+      color: var(--text);
+    }
+
+    .toast em {
+      font-style: normal;
+      color: var(--accent-2);
+      font-family: var(--font-mono);
+    }
+
+    .token-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 9px;
+      color: var(--muted);
+    }
+
+    .token-row span {
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 2px 5px;
+      background: var(--panel);
+    }
+
+    /* ---------- Themes ---------- */
+    .t-rust {
+      --bg: #0e1013; --panel: #171a1f; --panel-2: #1f242b; --border: #2c333d;
+      --text: #e7e3db; --muted: #98a1ad;
+      --accent: #c96a3a; --accent-2: #e0a458; --accent-text: #140d09;
+      --good: #6fae7b; --bad: #c4554d;
+      --junk: #7d7d7d; --common: #d6d6d6; --rare: #4f8fd6; --epic: #c9a227;
+    }
+
+    .t-toxic {
+      --bg: #0b100d; --panel: #121a15; --panel-2: #18231c; --border: #263529;
+      --text: #e3ecdf; --muted: #93a695;
+      --accent: #7fbf4d; --accent-2: #c8e06a; --accent-text: #0b1207;
+      --good: #6fbf8a; --bad: #d1584f;
+      --junk: #77806f; --common: #cfd8cb; --rare: #57a9c9; --epic: #d4b13f;
+    }
+
+    .t-blood {
+      --bg: #0f0c0d; --panel: #191315; --panel-2: #221a1c; --border: #332427;
+      --text: #ece2e2; --muted: #a89496;
+      --accent: #b23a3a; --accent-2: #d97757; --accent-text: #f6ece7;
+      --good: #7fa06f; --bad: #e05252;
+      --junk: #7a6f70; --common: #d9cfcf; --rare: #6a93c9; --epic: #c9a24a;
+    }
+
+    .t-steel {
+      --bg: #0c1014; --panel: #131920; --panel-2: #1a222b; --border: #26313d;
+      --text: #dfe7ef; --muted: #8fa0b3;
+      --accent: #5b8fd6; --accent-2: #7fc4e8; --accent-text: #080d12;
+      --good: #63b39a; --bad: #d16a6a;
+      --junk: #6f7a86; --common: #cfd8e2; --rare: #4f8fd6; --epic: #c9a227;
+    }
+
+    .t-brass {
+      --bg: #12100c; --panel: #1b1711; --panel-2: #241e16; --border: #3a3023;
+      --text: #f0e6d2; --muted: #b3a284;
+      --accent: #c9973f; --accent-2: #e3c06a; --accent-text: #171006;
+      --good: #8fae6a; --bad: #c96a4a;
+      --junk: #7f7767; --common: #ded5c1; --rare: #5f93b8; --epic: #d8a93f;
+    }
+
+    .t-bone {
+      --bg: #d9d2c3; --panel: #e8e2d6; --panel-2: #f2ede3; --border: #b9b0a0;
+      --text: #2b2823; --muted: #6d675c;
+      --accent: #a4552f; --accent-2: #8a5a20; --accent-text: #fbf6ec;
+      --good: #4f7d5a; --bad: #a83f3a;
+      --junk: #8a8274; --common: #575046; --rare: #3a6f9c; --epic: #8a6a12;
+    }
+
+    .t-neon {
+      --bg: #0b0a12; --panel: #141221; --panel-2: #1c1930; --border: #2e2a4a;
+      --text: #eae6ff; --muted: #9a93c2;
+      --accent: #b45cff; --accent-2: #4fe0d0; --accent-text: #0c0714;
+      --good: #4fd08a; --bad: #ff5c7a;
+      --junk: #6f6a85; --common: #d8d2ee; --rare: #4f9fe0; --epic: #e0a94f;
+    }
+
+    .t-moss {
+      --bg: #0d110f; --panel: #151c17; --panel-2: #1d271f; --border: #2b3a2e;
+      --text: #e4eadf; --muted: #94a892;
+      --accent: #b87333; --accent-2: #8fbf6a; --accent-text: #120b06;
+      --good: #7bbf8a; --bad: #cf6b5a;
+      --junk: #757f73; --common: #d3dbcf; --rare: #5b93b8; --epic: #c9a24a;
+    }
+
+    .t-ember {
+      --bg: #100c0b; --panel: #1a1311; --panel-2: #241a16; --border: #3a2822;
+      --text: #f2e6dd; --muted: #b59c8f;
+      --accent: #d2691e; --accent-2: #ffb347; --accent-text: #170b04;
+      --good: #9aae6a; --bad: #d64545;
+      --junk: #80736b; --common: #e2d6cb; --rare: #5f93c9; --epic: #e0b04f;
+    }
+
+    .t-hazmat {
+      --bg: #0d0f0d; --panel: #151915; --panel-2: #1c221c; --border: #2c362c;
+      --text: #e6ece4; --muted: #94a094;
+      --accent: #d8c33a; --accent-2: #a3d84a; --accent-text: #111207;
+      --good: #66c07a; --bad: #d95f4a;
+      --junk: #75806f; --common: #d3dbcf; --rare: #58a0c4; --epic: #d8b13a;
+    }
+  </style>
+</head>
+<body>
+  <header class="page-header">
+    <h1>Idleness — Theme Picker</h1>
+    <p>Same layout in each box. Pick a name and tell me the winner.</p>
+  </header>
+
+  <main class="theme-grid" id="theme-grid"></main>
+
+  <script>
+    const THEMES = [
+      { cls: "t-rust",   name: "Rust & Ash" },
+      { cls: "t-toxic",  name: "Toxic Bloom" },
+      { cls: "t-blood",  name: "Blood & Iron" },
+      { cls: "t-steel",  name: "Cold Steel" },
+      { cls: "t-brass",  name: "Oil & Brass" },
+      { cls: "t-bone",   name: "Pale Bone (Light)" },
+      { cls: "t-neon",   name: "Neon Ruin" },
+      { cls: "t-moss",   name: "Moss & Copper" },
+      { cls: "t-ember",  name: "Ember Cult" },
+      { cls: "t-hazmat", name: "Hazmat" }
+    ];
+
+    const grid = document.getElementById("theme-grid");
+
+    const card = (theme) => `
+      <article class="theme-card ${theme.cls}">
+        <div class="theme-head">
+          <h2>${theme.name}</h2>
+          <div class="swatches" aria-label="palette">
+            <span style="background: var(--bg)"></span>
+            <span style="background: var(--panel)"></span>
+            <span style="background: var(--accent)"></span>
+            <span style="background: var(--accent-2)"></span>
+            <span style="background: var(--text)"></span>
+          </div>
+        </div>
+
+        <div class="mock">
+          <div class="mock-top">
+            <div class="who"><span class="dot"></span>Scavenger · Lv 12</div>
+            <div class="scrap">⚙ 2,480</div>
+          </div>
+
+          <div class="mock-nav">
+            <span class="active">Combat</span>
+            <span>Skills</span>
+            <span>Bank</span>
+            <span>Shop</span>
+          </div>
+
+          <div class="mock-panel">
+            <div class="bar-group">
+              <div class="bar-label"><span>Health</span><b>68 / 100</b></div>
+              <div class="bar hp"><i style="width: 68%"></i></div>
+            </div>
+            <div class="bar-group">
+              <div class="bar-label"><span>Mining · Lv 27</span><b>3,140 / 5,000</b></div>
+              <div class="bar xp"><i style="width: 62%"></i></div>
+            </div>
+            <div class="stat-rows">
+              <div class="stat-row"><span>Attack</span><b>184</b></div>
+              <div class="stat-row"><span>Defense</span><b>92</b></div>
+              <div class="stat-row"><span>Crit chance</span><b>18.4%</b></div>
+            </div>
+          </div>
+
+          <div class="slots" aria-label="gear">
+            <div class="slot epic"></div>
+            <div class="slot rare"></div>
+            <div class="slot common"></div>
+            <div class="slot junk"></div>
+            <div class="slot rare"></div>
+            <div class="slot common"></div>
+          </div>
+
+          <div class="mock-actions">
+            <button class="btn primary">Engage</button>
+            <button class="btn">Flee</button>
+          </div>
+
+          <div class="toast"><span>◆</span> Rare drop: <em>Military Knife</em></div>
+
+          <div class="token-row">
+            <span>bg</span><span>panel</span><span>accent</span><span>rare</span><span>epic</span>
+          </div>
+        </div>
+      </article>
+    `;
+
+    grid.innerHTML = THEMES.map(card).join("");
+  </script>
+</body>
+</html>

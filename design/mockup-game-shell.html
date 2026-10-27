@@ -1,0 +1,995 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="night-market">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Idleness - Game Shell Mockup</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Jersey+10&family=Pixelify+Sans:wght@400;500;600;700&family=VT323&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="themes/night-market.css" />
+  <style>
+    * { box-sizing: border-box; }
+
+    html, body { height: 100%; }
+
+    body {
+      margin: 0;
+      min-width: 1180px;
+      overflow: hidden;
+      background: #07070a;
+      color: var(--text);
+      font-family: var(--font-ui);
+      font-size: 11px;
+      -webkit-font-smoothing: none;
+      font-smooth: never;
+    }
+
+    button, select { font: inherit; }
+
+    /* ---------- Shell ---------- */
+    .game-shell {
+      display: flex;
+      height: 100vh;
+    }
+
+    .sidebar {
+      width: 250px;
+      flex: 0 0 250px;
+      display: flex;
+      flex-direction: column;
+      background: var(--panel);
+      border-right: var(--frame-width) solid var(--frame);
+      overflow-y: auto;
+    }
+
+    .sidebar::-webkit-scrollbar,
+    .content::-webkit-scrollbar,
+    .log::-webkit-scrollbar { width: 10px; }
+
+    .sidebar::-webkit-scrollbar-track,
+    .content::-webkit-scrollbar-track,
+    .log::-webkit-scrollbar-track { background: var(--frame-deep); }
+
+    .sidebar::-webkit-scrollbar-thumb,
+    .content::-webkit-scrollbar-thumb,
+    .log::-webkit-scrollbar-thumb { background: var(--frame-soft); border: 2px solid var(--frame-deep); }
+
+    .logo {
+      padding: 13px 14px 11px;
+      background: var(--panel-2);
+      border-bottom: var(--control-width) solid var(--frame);
+      box-shadow: inset 0 -2px 0 var(--frame-soft);
+    }
+
+    .logo h1 {
+      margin: 0;
+      font-family: var(--font-display);
+      font-size: 30px;
+      font-weight: 400;
+      line-height: 0.9;
+      letter-spacing: 0.06em;
+      color: var(--accent);
+      text-transform: uppercase;
+    }
+
+    .logo span {
+      display: block;
+      margin-top: 4px;
+      font-size: 7px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .nav-group {
+      padding: 10px 9px 0;
+    }
+
+    .nav-group h3 {
+      margin: 0 0 6px;
+      padding-bottom: 4px;
+      border-bottom: 2px solid var(--frame-soft);
+      font-family: var(--font-ui);
+      font-size: 8px;
+      font-weight: 600;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .nav-item {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 3px;
+      padding: 4px 6px;
+      border: 2px solid transparent;
+      background: transparent;
+      color: var(--text);
+      font-family: var(--font-ui);
+      font-size: 10px;
+      text-align: left;
+      cursor: pointer;
+    }
+
+    .nav-item:hover { background: var(--panel-2); }
+
+    .nav-item.active {
+      background: var(--panel-2);
+      border-color: var(--frame);
+      box-shadow: inset 3px 0 0 var(--accent);
+    }
+
+    .nav-icon {
+      width: 22px;
+      height: 22px;
+      flex: 0 0 22px;
+      display: grid;
+      place-items: center;
+      background: var(--slot);
+      border: 2px solid var(--frame);
+      box-shadow: inset 1px 1px 0 var(--slot-light), inset -1px -1px 0 var(--slot-dark);
+      font-family: var(--font-display);
+      font-size: 10px;
+      line-height: 1;
+      color: var(--accent);
+    }
+
+    .nav-label { flex: 1; min-width: 0; }
+
+    .nav-level {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      line-height: 1;
+      color: var(--muted);
+    }
+
+    /* ---------- Main ---------- */
+    .main {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .top-bar {
+      flex: 0 0 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 0 18px;
+      background: var(--panel);
+      border-bottom: var(--frame-width) solid var(--frame);
+      box-shadow: inset 0 -2px 0 var(--frame-soft);
+    }
+
+    .currency-row { display: flex; align-items: center; gap: 20px; }
+
+    .currency {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: var(--font-mono);
+      font-size: 19px;
+      line-height: 1;
+    }
+
+    .currency svg { width: 20px; height: 20px; shape-rendering: crispEdges; }
+
+    .currency .label {
+      font-family: var(--font-ui);
+      font-size: 8px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .top-actions { display: flex; gap: 6px; }
+
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+      background-color: #0a0a0d;
+      background-image:
+        radial-gradient(ellipse at 50% -20%, rgba(58, 95, 138, 0.18), transparent 60%),
+        repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.012) 0 2px, transparent 2px 4px);
+    }
+
+    /* ---------- Controls ---------- */
+    .btn {
+      border: var(--control-width) solid var(--frame);
+      background: var(--panel-2);
+      color: var(--text);
+      font-family: var(--font-display);
+      font-size: 16px;
+      line-height: 1;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      padding: 5px 10px 3px;
+      cursor: pointer;
+      box-shadow:
+        inset 2px 2px 0 rgba(255, 255, 255, 0.14),
+        inset -2px -2px 0 rgba(0, 0, 0, 0.35),
+        var(--shadow-control);
+    }
+
+    .btn:hover { background: var(--frame-soft); }
+    .btn:active { transform: translate(2px, 2px); box-shadow: inset 2px 2px 0 rgba(255, 255, 255, 0.14), inset -2px -2px 0 rgba(0, 0, 0, 0.35), 1px 1px 0 var(--frame); }
+    .btn.primary { background: var(--accent); color: var(--accent-text); }
+    .btn.primary:hover { background: var(--accent-2); }
+    .btn.danger { background: var(--danger); color: #1d0907; }
+    .btn.small { font-size: 14px; padding: 4px 8px 2px; }
+    .btn.full { width: 100%; }
+
+    /* ---------- Page header ---------- */
+    .page-head {
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 16px;
+      margin-bottom: 16px;
+      padding-bottom: 10px;
+      border-bottom: 3px solid var(--frame-soft);
+    }
+
+    .breadcrumb {
+      margin-bottom: 4px;
+      font-size: 8px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .page-head h1 {
+      margin: 0;
+      font-family: var(--font-display);
+      font-size: 38px;
+      font-weight: 400;
+      line-height: 0.9;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--text);
+      text-shadow: 3px 3px 0 var(--frame);
+    }
+
+    .page-tags { display: flex; gap: 5px; margin-top: 7px; }
+
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 6px 1px;
+      border: 2px solid var(--frame);
+      background: var(--panel-2);
+      font-family: var(--font-ui);
+      font-size: 8px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .tag.war { background: var(--title); color: var(--title-text); border-color: var(--frame); }
+    .tag.zombies { color: var(--faction-zombies); }
+    .tag.scavengers { color: var(--faction-scavengers); }
+
+    /* ---------- Panels ---------- */
+    .combat-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 300px;
+      gap: 20px;
+      align-items: start;
+    }
+
+    .left-stack, .right-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      min-width: 0;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: var(--frame-width) solid var(--frame);
+      box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.5);
+    }
+
+    .panel-title {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 5px 8px 4px;
+      background: var(--title);
+      color: var(--title-text);
+      border-bottom: var(--control-width) solid var(--frame);
+      font-family: var(--font-display);
+      font-size: 20px;
+      line-height: 1;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .panel-title .meta {
+      font-family: var(--font-ui);
+      font-size: 8px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      opacity: 0.72;
+    }
+
+    .panel-body { padding: 12px; }
+
+    .faction-desc {
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 2px dotted var(--frame-soft);
+      font-size: 9px;
+      line-height: 1.5;
+      color: var(--muted);
+    }
+
+    /* ---------- Duel ---------- */
+    .duel {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .fighter {
+      background: var(--panel-2);
+      border: var(--control-width) solid var(--frame);
+      padding: 9px;
+      box-shadow: inset 2px 2px 0 var(--slot-light), inset -2px -2px 0 var(--slot-dark);
+    }
+
+    .fighter.enemy { box-shadow: inset 2px 2px 0 rgba(180, 71, 60, 0.25), inset -2px -2px 0 var(--slot-dark); }
+
+    .fighter-head {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin-bottom: 8px;
+    }
+
+    .portrait {
+      width: 46px;
+      height: 46px;
+      flex: 0 0 46px;
+      display: grid;
+      place-items: center;
+      background: var(--slot);
+      border: 3px solid var(--frame);
+      box-shadow: inset 2px 2px 0 var(--slot-light), inset -2px -2px 0 var(--slot-dark);
+    }
+
+    .portrait svg { width: 36px; height: 36px; shape-rendering: crispEdges; }
+
+    .fighter-name {
+      font-family: var(--font-display);
+      font-size: 21px;
+      line-height: 0.95;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .fighter-meta {
+      margin-top: 3px;
+      font-size: 8px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .hp-bar {
+      position: relative;
+      height: 15px;
+      margin: 7px 0 3px;
+      border: 3px solid var(--frame);
+      background: var(--slot-dark);
+      overflow: hidden;
+    }
+
+    .hp-bar i {
+      display: block;
+      height: 100%;
+      background: var(--hp);
+      position: relative;
+    }
+
+    .hp-bar.enemy i { background: var(--danger); }
+
+    .hp-bar i::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: repeating-linear-gradient(90deg, transparent 0 9px, var(--panel-2) 9px 11px);
+    }
+
+    .hp-text {
+      display: flex;
+      justify-content: space-between;
+      font-family: var(--font-mono);
+      font-size: 15px;
+      line-height: 1;
+      color: var(--muted);
+    }
+
+    .stat-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2px 12px;
+      margin-top: 7px;
+    }
+
+    .stat {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 6px;
+      padding-bottom: 2px;
+      border-bottom: 1px dotted var(--frame-soft);
+      font-size: 8px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .stat b {
+      font-family: var(--font-mono);
+      font-size: 14px;
+      font-weight: 400;
+      color: var(--text);
+    }
+
+    /* ---------- Lists ---------- */
+    .section-h {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin: 13px 0 6px;
+      padding-bottom: 4px;
+      border-bottom: 2px solid var(--frame-soft);
+      font-size: 8px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .enemy-row, .dungeon-row {
+      display: grid;
+      grid-template-columns: 30px 1fr 92px auto;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 4px;
+      padding: 5px 6px;
+      background: var(--panel-2);
+      border: 2px solid var(--frame);
+      box-shadow: inset 1px 1px 0 var(--slot-light);
+    }
+
+    .row-icon {
+      width: 27px;
+      height: 27px;
+      display: grid;
+      place-items: center;
+      background: var(--slot);
+      border: 2px solid var(--frame);
+    }
+
+    .row-icon svg { width: 21px; height: 21px; shape-rendering: crispEdges; }
+
+    .row-name {
+      font-size: 9px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .row-name small {
+      display: block;
+      margin-top: 1px;
+      font-size: 7px;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+    }
+
+    .mini-hp {
+      height: 8px;
+      border: 2px solid var(--frame);
+      background: var(--slot-dark);
+      overflow: hidden;
+    }
+
+    .mini-hp i { display: block; height: 100%; background: var(--danger); }
+    .mini-hp.ally i { background: var(--hp); }
+
+    .row-btn {
+      font-size: 13px;
+      padding: 3px 7px 1px;
+      box-shadow: 2px 2px 0 var(--frame);
+    }
+
+    /* ---------- Gathering ---------- */
+    .gathering-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(185px, 1fr));
+      gap: 8px;
+    }
+
+    .gather-card {
+      display: grid;
+      gap: 6px;
+      padding: 8px;
+      background: var(--panel-2);
+      border: var(--control-width) solid var(--frame);
+      box-shadow: inset 2px 2px 0 var(--slot-light), inset -2px -2px 0 var(--slot-dark);
+    }
+
+    .gather-head { display: flex; align-items: center; gap: 8px; }
+
+    .gather-icon {
+      width: 36px;
+      height: 36px;
+      flex: 0 0 36px;
+      display: grid;
+      place-items: center;
+      background: var(--slot);
+      border: 2px solid var(--frame);
+    }
+
+    .gather-icon svg { width: 28px; height: 28px; shape-rendering: crispEdges; }
+
+    .gather-name {
+      font-family: var(--font-display);
+      font-size: 16px;
+      line-height: 0.95;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    .gather-meta {
+      margin-top: 2px;
+      font-size: 7px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .gather-card .btn { width: 100%; font-size: 13px; padding: 3px 6px 1px; }
+
+    /* ---------- Equipment ---------- */
+    .equipment-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 6px;
+    }
+
+    .equip-slot {
+      position: relative;
+      aspect-ratio: 1 / 1;
+      display: grid;
+      place-items: center;
+      background: var(--slot);
+      border: 2px solid var(--frame);
+      box-shadow: inset 2px 2px 0 var(--slot-light), inset -2px -2px 0 var(--slot-dark);
+    }
+
+    .equip-slot svg { width: 68%; height: 68%; shape-rendering: crispEdges; }
+
+    .equip-slot span {
+      position: absolute;
+      bottom: 1px;
+      left: 0;
+      right: 0;
+      text-align: center;
+      font-family: var(--font-ui);
+      font-size: 6px;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-shadow: 1px 1px 0 var(--frame);
+    }
+
+    .equip-stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3px 12px;
+      margin-top: 9px;
+    }
+
+    /* ---------- Quick actions ---------- */
+    .quick-actions { display: grid; gap: 6px; }
+
+    .qa-select {
+      width: 100%;
+      padding: 5px 6px;
+      background: var(--slot);
+      color: var(--text);
+      border: var(--control-width) solid var(--frame);
+      font-family: var(--font-ui);
+      font-size: 9px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      outline: none;
+    }
+
+    .qa-label {
+      margin-top: 2px;
+      font-size: 7px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    /* ---------- Log ---------- */
+    .log {
+      display: grid;
+      gap: 2px;
+      max-height: 132px;
+      overflow-y: auto;
+      padding-right: 4px;
+      font-family: var(--font-mono);
+      font-size: 14px;
+      line-height: 1.15;
+      color: var(--muted);
+    }
+
+    .log-line { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .log-line b { color: var(--accent); font-weight: 400; }
+    .log-line .good { color: var(--success); }
+    .log-line .bad { color: var(--danger); }
+    .log-line .loot { color: var(--rarity-epic); }
+
+    /* ---------- Toast ---------- */
+    .toast {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 14px;
+      background: var(--panel);
+      border: var(--frame-width) solid var(--frame);
+      border-left: 6px solid var(--accent);
+      box-shadow: 6px 6px 0 rgba(0, 0, 0, 0.55);
+      font-family: var(--font-display);
+      font-size: 17px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      z-index: 10;
+    }
+
+    .toast span { color: var(--accent); }
+
+    @media (max-height: 760px) {
+      .content { padding: 14px; }
+      .page-head h1 { font-size: 30px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="game-shell">
+    <aside class="sidebar">
+      <div class="logo">
+        <h1>Idleness</h1>
+        <span>Post-apocalyptic idle</span>
+      </div>
+
+      <nav class="nav-group">
+        <h3>Main</h3>
+        <button class="nav-item active"><span class="nav-icon">AR</span><span class="nav-label">Areas</span></button>
+        <button class="nav-item"><span class="nav-icon">HB</span><span class="nav-label">Home Base</span></button>
+        <button class="nav-item"><span class="nav-icon">BK</span><span class="nav-label">Bank</span><span class="nav-level">9/30</span></button>
+        <button class="nav-item"><span class="nav-icon">SH</span><span class="nav-label">Shop</span></button>
+      </nav>
+
+      <nav class="nav-group">
+        <h3>Combat</h3>
+        <button class="nav-item"><span class="nav-icon">FI</span><span class="nav-label">Fitness</span><span class="nav-level">12</span></button>
+        <button class="nav-item"><span class="nav-icon">DF</span><span class="nav-label">Defense</span><span class="nav-level">9</span></button>
+        <button class="nav-item"><span class="nav-icon">ME</span><span class="nav-label">Melee</span><span class="nav-level">14</span></button>
+        <button class="nav-item"><span class="nav-icon">FA</span><span class="nav-label">Firearms</span><span class="nav-level">6</span></button>
+        <button class="nav-item"><span class="nav-icon">EX</span><span class="nav-label">Explosives</span><span class="nav-level">2</span></button>
+      </nav>
+
+      <nav class="nav-group">
+        <h3>Gathering</h3>
+        <button class="nav-item"><span class="nav-icon">WC</span><span class="nav-label">Woodcutting</span><span class="nav-level">8</span></button>
+        <button class="nav-item"><span class="nav-icon">MN</span><span class="nav-label">Mining</span><span class="nav-level">11</span></button>
+        <button class="nav-item"><span class="nav-icon">FS</span><span class="nav-label">Fishing</span><span class="nav-level">7</span></button>
+        <button class="nav-item"><span class="nav-icon">FG</span><span class="nav-label">Foraging</span><span class="nav-level">9</span></button>
+        <button class="nav-item"><span class="nav-icon">HN</span><span class="nav-label">Hunting</span><span class="nav-level">5</span></button>
+        <button class="nav-item"><span class="nav-icon">LT</span><span class="nav-label">Looting</span><span class="nav-level">4</span></button>
+        <button class="nav-item"><span class="nav-icon">SC</span><span class="nav-label">Scavenging</span><span class="nav-level">10</span></button>
+      </nav>
+
+      <nav class="nav-group">
+        <h3>Production</h3>
+        <button class="nav-item"><span class="nav-icon">AC</span><span class="nav-label">Animal Care</span><span class="nav-level">3</span></button>
+        <button class="nav-item"><span class="nav-icon">FM</span><span class="nav-label">Farming</span><span class="nav-level">4</span></button>
+      </nav>
+
+      <nav class="nav-group">
+        <h3>Crafting</h3>
+        <button class="nav-item"><span class="nav-icon">CK</span><span class="nav-label">Cooking</span><span class="nav-level">6</span></button>
+        <button class="nav-item"><span class="nav-icon">FR</span><span class="nav-label">Forging</span><span class="nav-level">8</span></button>
+        <button class="nav-item"><span class="nav-icon">TL</span><span class="nav-label">Tailoring</span><span class="nav-level">5</span></button>
+        <button class="nav-item"><span class="nav-icon">GS</span><span class="nav-label">Gunsmithing</span><span class="nav-level">3</span></button>
+        <button class="nav-item"><span class="nav-icon">TK</span><span class="nav-label">Tinkering</span><span class="nav-level">4</span></button>
+        <button class="nav-item"><span class="nav-icon">CP</span><span class="nav-label">Carpentry</span><span class="nav-level">7</span></button>
+        <button class="nav-item"><span class="nav-icon">+</span><span class="nav-label">First Aid</span><span class="nav-level">5</span></button>
+        <button class="nav-item"><span class="nav-icon">MS</span><span class="nav-label">Masonry</span><span class="nav-level">2</span></button>
+        <button class="nav-item"><span class="nav-icon">CH</span><span class="nav-label">Chemistry</span><span class="nav-level">1</span></button>
+        <button class="nav-item"><span class="nav-icon">EL</span><span class="nav-label">Electrical</span><span class="nav-level">1</span></button>
+      </nav>
+    </aside>
+
+    <main class="main">
+      <header class="top-bar">
+        <div class="currency-row">
+          <div class="currency"><span id="top-scrap"></span><span id="scrap-value">2,480</span><span class="label">Scrap</span></div>
+          <div class="currency"><span id="top-combat"></span><span>12</span><span class="label">Combat</span></div>
+        </div>
+        <div class="top-actions">
+          <button class="btn small">Save Game</button>
+          <button class="btn small">Load Game</button>
+          <button class="btn small">Reset</button>
+        </div>
+      </header>
+
+      <div class="content">
+        <div class="page-head">
+          <div>
+            <div class="breadcrumb">Areas / Sunken Meadow</div>
+            <h1>Sunken Meadow</h1>
+            <div class="page-tags">
+              <span class="tag war">War</span>
+              <span class="tag">Lv 1</span>
+              <span class="tag zombies">Zombies</span>
+              <span class="tag scavengers">Scavengers</span>
+            </div>
+          </div>
+          <button class="btn">Back to Areas</button>
+        </div>
+
+        <div class="combat-layout">
+          <div class="left-stack">
+            <section class="panel">
+              <div class="panel-title"><span>Combat</span><span class="meta">Area Lv 1</span></div>
+              <div class="panel-body">
+                <div class="faction-desc">
+                  War zone: Zombies &amp; Scavengers. The meadow is overrun; hold the road or lose the route.
+                </div>
+
+                <div class="duel">
+                  <div class="fighter">
+                    <div class="fighter-head">
+                      <div class="portrait" id="player-portrait"></div>
+                      <div>
+                        <div class="fighter-name">Scavenger</div>
+                        <div class="fighter-meta">Level 12 · Player</div>
+                      </div>
+                    </div>
+                    <div class="hp-bar"><i style="width: 68%"></i></div>
+                    <div class="hp-text"><span>HP</span><span>68 / 100</span></div>
+                    <div class="stat-grid">
+                      <div class="stat"><span>Atk</span><b>184</b></div>
+                      <div class="stat"><span>Def</span><b>92</b></div>
+                      <div class="stat"><span>Acc</span><b>76%</b></div>
+                      <div class="stat"><span>Crit</span><b>18%</b></div>
+                    </div>
+                  </div>
+
+                  <div class="fighter enemy">
+                    <div class="fighter-head">
+                      <div class="portrait" id="enemy-portrait"></div>
+                      <div>
+                        <div class="fighter-name">Shambler</div>
+                        <div class="fighter-meta">Level 3 · Zombie</div>
+                      </div>
+                    </div>
+                    <div class="hp-bar enemy"><i style="width: 42%"></i></div>
+                    <div class="hp-text"><span>HP</span><span>42 / 100</span></div>
+                    <div class="stat-grid">
+                      <div class="stat"><span>Atk</span><b>22</b></div>
+                      <div class="stat"><span>Def</span><b>8</b></div>
+                      <div class="stat"><span>Acc</span><b>54%</b></div>
+                      <div class="stat"><span>Crit</span><b>2%</b></div>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="section-h"><span>Enemies</span><span>4 in area</span></div>
+                <div id="enemy-list"></div>
+
+                <div class="section-h"><span>Dungeons &amp; Raids</span><span>1 available</span></div>
+                <div id="dungeon-list"></div>
+              </div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-title"><span>Gathering</span><span class="meta">Sunken Meadow</span></div>
+              <div class="panel-body">
+                <div class="gathering-grid" id="gathering-grid"></div>
+              </div>
+            </section>
+          </div>
+
+          <aside class="right-stack">
+            <section class="panel">
+              <div class="panel-title"><span>Equipment</span><span class="meta">Lv 12</span></div>
+              <div class="panel-body">
+                <div class="equipment-grid" id="equipment-grid"></div>
+                <div class="equip-stats">
+                  <div class="stat"><span>Atk</span><b>184</b></div>
+                  <div class="stat"><span>Def</span><b>92</b></div>
+                  <div class="stat"><span>Acc</span><b>+24</b></div>
+                  <div class="stat"><span>Crit</span><b>18%</b></div>
+                </div>
+              </div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-title"><span>Quick Actions</span><span class="meta">Combat</span></div>
+              <div class="panel-body quick-actions">
+                <button class="btn full small">Bandage Autoheal: Off</button>
+                <div class="qa-label">Bandage selection</div>
+                <select class="qa-select"><option>Improved Cotton Bandage</option></select>
+                <button class="btn full small">Eat Food</button>
+                <div class="qa-label">Food selection</div>
+                <select class="qa-select"><option>Cooked Meat</option></select>
+                <button class="btn danger full small">Escape Battle</button>
+              </div>
+            </section>
+
+            <section class="panel">
+              <div class="panel-title"><span>Activity Log</span><span class="meta">Live</span></div>
+              <div class="panel-body">
+                <div class="log">
+                  <div class="log-line"><span class="good">&gt;</span> You hit Shambler for <b>24</b>.</div>
+                  <div class="log-line"><span class="bad">&gt;</span> Shambler hits you for <b>8</b>.</div>
+                  <div class="log-line"><span class="good">&gt;</span> Critical strike! <b>36</b> damage.</div>
+                  <div class="log-line"><span class="loot">&gt;</span> Found Scrap x3.</div>
+                  <div class="log-line"><span class="good">&gt;</span> You hit Shambler for <b>24</b>.</div>
+                  <div class="log-line"><span class="bad">&gt;</span> Shambler misses.</div>
+                  <div class="log-line"><span class="loot">&gt;</span> Found Cloth x1.</div>
+                </div>
+              </div>
+            </section>
+          </aside>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="toast"><span>Rare drop</span> Military Knife</div>
+
+  <script>
+    const PALETTE = {
+      k: "#17171c", g: "#8a8f98", l: "#c8ccd4", d: "#4a4f58",
+      r: "#b23a2a", o: "#d9822b", y: "#e0c060", b: "#5b8fd6",
+      t: "#4fae9e", n: "#8a5a2b", G: "#6fae7b", w: "#e8e6e1",
+      p: "#b45cff", s: "#9aa3ad"
+    };
+
+    const ICONS = {
+      knife: ["............",".....ww.....","....wwww....","....wwww....","....wwww....","....wwww....","...kwwwwk...","...knnnnk...","....nnnn....","....nnnn....","............","............"],
+      pistol: ["............","............","..dddddd....",".dddddddd...",".dgggggggd..","....dddddd..","....dd......","....dd......","....dd......","............","............","............"],
+      crowbar: [".........rr.","........rr..",".......rr...","......rr....",".....rr.....","....rr......","...rr.......","..rr........",".rr.........","rr..........","............","............"],
+      helmet: ["............","...gggggg...","..gggggggg..",".gggggggggg.",".gggggggggg.",".gggggggggg.","..kkkkkkkk..","............","............","............","............","............"],
+      vest: ["............","...kkkkkk...","..kggggggk..","..kgk..kgk..","..kggggggk..","..kggggggk..","..kggggggk..","..kgk..kgk..","..kggggggk..","...kkkkkk...","............","............"],
+      gloves: ["............","..kk...kk...",".kggk.kggk..",".kggk.kggk..",".kggk.kggk..",".kggkkkggk..",".kgggggggk..","..kgggggk...","...kkkkk....","............","............","............"],
+      boot: ["............","....nnnn....","....nnnn....","....nnnn....","....nnnn....","....nnnnnn..","....nnnnnn..","..kknnnnnn..","..kkkkkkkk..","............","............","............"],
+      shield: ["............","...kkkkkk...","..kggggggk..","..kgttttgk..","..kgttttgk..","..kggggggk..","..kggggggk..","...kggggk...","....kggk....",".....kk.....","............","............"],
+      key: ["............","...yyyy.....","..yy..yy....","..yy..yy....","...yyyy.....","....yy......","....yy......","....yy......","....yyy.....","....yy......","............","............"],
+      gasmask: ["............","...kkkkkk...","..kggggggk..","..kgkkkkgk..","..kgkttkgk..","..kgkttkgk..","..kggggggk..","...kggggk...","....kddk....","....kddk....",".....kk.....","............"],
+      scrap: ["............","....kkkk....","...kggggk...","..kggkkggk..","..kgk..kgk..","..kgk..kgk..","..kggkkggk..","...kggggk...","....kkkk....","............","............","............"],
+      ammo: ["............","..yy..yy....","..yy..yy....","..yy..yy....","..yy..yy....","..yy..yy....","..oo..oo....","..oo..oo....","............","............","............","............"],
+      can: ["............","...kkkkkk...","..kggggggk..","..krrrrrrk..","..krrrrrrk..","..krrrrrrk..","..krrrrrrk..","..kggggggk..","...kkkkkk...","............","............","............"],
+      wire: ["............","...oooo.....","..oo..oo....","..oo..oo....","...oooo.....","..oooooo....",".oo....oo...",".oo....oo...","..oooooo....","............","............","............"],
+      axe: ["............","....kkkk....","...kggggk...","..kggggggk..","..kggggggk..","...kggggk...","....kggk....","....kggk....","....kggk....","....knnk....","....knnk....","............"],
+      pick: ["............","..kkkkkkkk..",".kggggggggk.","..kkkggkkk..",".....gg.....",".....gg.....",".....gg.....",".....gg.....",".....gg.....",".....kk.....","............","............"],
+      fish: ["............","............","....kkkk....","..kkttttkk..",".kttttttttk.",".kttkttttttk","..kkttttkk..","....kkkk....","............","............","............","............"],
+      leaf: ["............","..........kk","........kkGk","......kkGGk.","....kkGGk...","...kGGk.....","..kGGk......",".kGGk.......",".kkk........","............","............","............"],
+      trap: ["............","..kkkkkkkk..","..kggggggk..","..kgkggkgk..","..kggggggk..","..kgkggkgk..","..kggggggk..","..kkkkkkkk..","............","............","............","............"],
+      zombie: ["............","....kkkk....","...kGGGGk...","...kGrGkk...","...kGGGGk...","....kGGk....","...kGGGGk...","..kGGGGGGk..","..kGGGGGGk..","...kGGGGk...","............","............"],
+      survivor: ["............","....kkkk....","...kssssk...","...kskskk...","...kssssk...","....kssk....","...kbbbbk...","..kbbbbbbk..","..kbbbbbbk..","...kbbbbk...","............","............"],
+      star: [".....y......","....yyy.....","...yyyyy....",".yyyyyyyyy..","..yyyyyyy...","...yyyyy....","..yyy.yyy...",".yy.....yy..","............","............","............","............"]
+    };
+
+    const icon = (name) => {
+      const rows = ICONS[name] || ICONS.scrap;
+      const rects = rows.flatMap((row, y) =>
+        [...row].map((ch, x) => {
+          const fill = PALETTE[ch];
+          return fill ? `<rect x="${x}" y="${y}" width="1" height="1" fill="${fill}"/>` : "";
+        })
+      ).join("");
+      return `<svg viewBox="0 0 12 12" aria-hidden="true">${rects}</svg>`;
+    };
+
+    document.getElementById("top-scrap").innerHTML = icon("scrap");
+    document.getElementById("top-combat").innerHTML = icon("knife");
+    document.getElementById("player-portrait").innerHTML = icon("survivor");
+    document.getElementById("enemy-portrait").innerHTML = icon("zombie");
+
+    const ENEMIES = [
+      { name: "Shambler", level: 3, hp: 42, icon: "zombie" },
+      { name: "Groaner", level: 4, hp: 68, icon: "zombie" },
+      { name: "The Scrounger", level: 3, hp: 80, icon: "scrap" },
+      { name: "Ash-Sifter", level: 4, hp: 22, icon: "scrap" }
+    ];
+
+    document.getElementById("enemy-list").innerHTML = ENEMIES.map(enemy => `
+      <div class="enemy-row">
+        <div class="row-icon">${icon(enemy.icon)}</div>
+        <div class="row-name">${enemy.name}<small>Level ${enemy.level}</small></div>
+        <div class="mini-hp"><i style="width:${enemy.hp}%"></i></div>
+        <button class="btn primary row-btn">Fight</button>
+      </div>
+    `).join("");
+
+    document.getElementById("dungeon-list").innerHTML = `
+      <div class="dungeon-row">
+        <div class="row-icon">${icon("zombie")}</div>
+        <div class="row-name">Warfront<small>Dungeon · 5 foes</small></div>
+        <div class="mini-hp"><i style="width:100%"></i></div>
+        <button class="btn row-btn">Enter</button>
+      </div>
+      <div class="dungeon-row">
+        <div class="row-icon">${icon("star")}</div>
+        <div class="row-name">The Unending<small>Boss · Lv 6</small></div>
+        <div class="mini-hp"><i style="width:100%"></i></div>
+        <button class="btn row-btn">Enter</button>
+      </div>
+    `;
+
+    const GATHER = [
+      { name: "Poplar Tree", meta: "Woodcutting · Lv 1 · 1.0s", icon: "axe" },
+      { name: "Copper Vein", meta: "Mining · Lv 1 · 1.0s", icon: "pick" },
+      { name: "Bluegill", meta: "Fishing · Lv 1 · 1.2s", icon: "fish" },
+      { name: "Wild Cotton", meta: "Foraging · Lv 1 · 1.1s", icon: "leaf" },
+      { name: "Gray Squirrel", meta: "Hunting · Lv 1 · 1.4s", icon: "trap" },
+      { name: "Gymnasium", meta: "Looting · Lv 1 · 1.5s", icon: "key" }
+    ];
+
+    document.getElementById("gathering-grid").innerHTML = GATHER.map(node => `
+      <div class="gather-card">
+        <div class="gather-head">
+          <div class="gather-icon">${icon(node.icon)}</div>
+          <div>
+            <div class="gather-name">${node.name}</div>
+            <div class="gather-meta">${node.meta}</div>
+          </div>
+        </div>
+        <button class="btn">Start</button>
+      </div>
+    `).join("");
+
+    const EQUIPMENT = [
+      { label: "Helm", icon: "helmet" },
+      { label: "Body", icon: "vest" },
+      { label: "Glove", icon: "gloves" },
+      { label: "Boot", icon: "boot" },
+      { label: "Weapon", icon: "knife" },
+      { label: "Offhand", icon: "shield" },
+      { label: "Acc 1", icon: "key" },
+      { label: "Acc 2", icon: "gasmask" }
+    ];
+
+    document.getElementById("equipment-grid").innerHTML = EQUIPMENT.map(slot => `
+      <div class="equip-slot" title="${slot.label}">
+        ${icon(slot.icon)}
+        <span>${slot.label}</span>
+      </div>
+    `).join("");
+  </script>
+</body>
+</html>
