@@ -1,4 +1,4 @@
-import { skillLevel, xpForLevel } from "../../game/progression.js";
+﻿import { skillLevel, xpForLevel } from "../../game/progression.js";
 import {
   activeActionLabel,
   durationLabel,
@@ -22,7 +22,7 @@ function renderActionBar(registry, state) {
       <div class="panel-body">
         <div class="action-line">
           <div class="action-name">${esc(name)}</div>
-          <div class="action-meta">${durationLabel(action.durationMs)} · repeat ${action.repeat ? "on" : "off"}</div>
+          <div class="action-meta">${durationLabel(action.durationMs)} Â· repeat ${action.repeat ? "on" : "off"}</div>
         </div>
         <div class="progress"><i style="width:${percent}%"></i></div>
         <div class="action-actions">
@@ -34,12 +34,33 @@ function renderActionBar(registry, state) {
   `;
 }
 
+function renderQueue(registry, state) {
+  if (state.activityQueue.length === 0) return "";
+
+  const rows = state.activityQueue
+    .map((item) => {
+      const definition = registry.get(
+        item.kind === "node" ? "nodes" : "recipes",
+        item.id
+      );
+      return `<div class="queue-row"><span>${esc(definition?.name ?? item.id)}</span><span>${esc(item.kind)}</span></div>`;
+    })
+    .join("");
+
+  return `
+    <section class="panel queue-panel">
+      <div class="panel-title"><span>Queue</span><span class="meta">${state.activityQueue.length} / 5</span></div>
+      <div class="panel-body"><div class="queue-list">${rows}</div></div>
+    </section>
+  `;
+}
+
 function renderDrops(registry, drops) {
   return Object.entries(drops)
     .map(([itemId, drop]) => {
       const item = registry.get("items", itemId);
       return `
-        <span class="drop-chip" title="${esc(item?.name ?? itemId)} — ${drop.chance}%">
+        <span class="drop-chip" title="${esc(item?.name ?? itemId)} â€” ${drop.chance}%">
           ${icon(item?.icon ?? "scrap")} ${drop.qty ?? 1}x ${esc(item?.name ?? itemId)}
         </span>
       `;
@@ -60,7 +81,7 @@ function renderNodes(registry, state, skill) {
           <div class="row-main">
             <div class="row-title">${esc(node.name)}</div>
             <div class="row-sub">
-              Lv ${node.levelReq} · ${durationLabel(node.durationMs)} · ${node.xp} XP
+              Lv ${node.levelReq} Â· ${durationLabel(node.durationMs)} Â· ${node.xp} XP
             </div>
             <div class="row-drops">${renderDrops(registry, node.drops)}</div>
           </div>
@@ -98,7 +119,7 @@ function renderRecipes(registry, state, skill) {
           <div class="row-icon">${icon(recipe.icon)}</div>
           <div class="row-main">
             <div class="row-title">${esc(recipe.name)}</div>
-            <div class="row-sub">Lv ${recipe.levelReq} · ${durationLabel(recipe.durationMs)} · ${recipe.xp} XP</div>
+            <div class="row-sub">Lv ${recipe.levelReq} Â· ${durationLabel(recipe.durationMs)} Â· ${recipe.xp} XP</div>
             <div class="row-drops">${inputs}<span class="arrow">&rarr;</span>${outputs}</div>
           </div>
           <button class="btn small" data-recipe="${esc(recipe.id)}" ${locked ? "disabled" : ""}>
@@ -153,6 +174,7 @@ export function renderSkill(registry, state) {
     </div>
 
     ${renderActionBar(registry, state)}
+    ${renderQueue(registry, state)}
 
     <section class="panel">
       <div class="panel-title"><span>${esc(skill.name)}</span><span class="meta">${currentXp} / ${nextXp} XP</span></div>

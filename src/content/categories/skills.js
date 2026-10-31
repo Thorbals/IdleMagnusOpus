@@ -1,4 +1,4 @@
-import { defineCategory } from "../category.js";
+﻿import { defineCategory } from "../category.js";
 
 export default defineCategory({
   id: "skills",
@@ -188,30 +188,6 @@ export default defineCategory({
       actionType: "crafting",
       icon: "medkit",
       description: "Bandages, anti-toxins, and trauma kits.",
-    },
-    masonry: {
-      name: "Masonry",
-      group: "crafting",
-      short: "MS",
-      actionType: "crafting",
-      icon: "brick",
-      description: "Cut and set stone for construction.",
-    },
-    chemistry: {
-      name: "Chemistry",
-      group: "crafting",
-      short: "CH",
-      actionType: "crafting",
-      icon: "flask",
-      description: "Mix chemicals and medicinal compounds.",
-    },
-    electrical: {
-      name: "Electrical",
-      group: "crafting",
-      short: "EL",
-      actionType: "crafting",
-      icon: "bolt",
-      description: "Wire components and repair electronics.",
     },
   },
 });

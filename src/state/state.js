@@ -1,4 +1,4 @@
-const SAVE_KEY = "idleness.prototype.save.v1";
+﻿const SAVE_KEY = "idleness.prototype.save.v1";
 
 const STARTING_LEVELS = {
   "skill.fitness": 12,
@@ -22,9 +22,6 @@ const STARTING_LEVELS = {
   "skill.tinkering": 4,
   "skill.carpentry": 7,
   "skill.first_aid": 5,
-  "skill.masonry": 2,
-  "skill.chemistry": 1,
-  "skill.electrical": 1,
 };
 
 const STARTING_EQUIPMENT = {
@@ -83,18 +80,25 @@ export function createState(registry) {
     skillLevels,
     skillXp: {},
     activeAction: null,
+    activityQueue: [],
     combat: null,
-    autoheal: false,
+    combatResult: null,
+    offlineReport: null,
+    autoFight: false,
+    autoEat: false,
+    areaTab: "combat",
+    lastSavedAt: null,
     logs: [
       { text: "You enter Sunken Meadow.", tone: "muted" },
       { text: "Shambler blocks the road.", tone: "bad" },
     ],
     screen: "areas",
     selectedAreaId: "area.sunken_meadow",
-    selectedEnemyId: "enemy.shambler",
+    selectedEnemyId: "enemy.zombies_shambler",
     selectedSkillId: "skill.mining",
     shopTab: "general",
     unlocks: [],
+    clearedAreas: [],
     home: makeHome(),
     toast: null,
   };
@@ -106,11 +110,12 @@ export function resetState(registry) {
 }
 
 export function saveState(state) {
-  // Timed actions are not persisted yet; reloading starts idle.
   const payload = {
     ...state,
-    activeAction: null,
     toast: null,
+    combatResult: null,
+    offlineReport: null,
+    savedAt: Date.now(),
   };
   localStorage.setItem(SAVE_KEY, JSON.stringify(payload));
 }
@@ -128,9 +133,13 @@ export function loadState(registry) {
     return {
       ...fresh,
       ...parsed,
-      activeAction: null,
       toast: null,
+      combatResult: null,
+      offlineReport: null,
       home: parsed.home ?? fresh.home,
+      activityQueue: parsed.activityQueue ?? [],
+      lastSavedAt: parsed.savedAt ?? null,
+      combat: parsed.combat ? { ...parsed.combat, running: false } : null,
     };
   } catch {
     return null;

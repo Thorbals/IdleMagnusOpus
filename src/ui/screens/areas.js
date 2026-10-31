@@ -1,4 +1,4 @@
-import { esc } from "../helpers.js";
+﻿import { esc } from "../helpers.js";
 import { icon } from "../icons.js";
 
 export function renderAreas(registry, state) {
@@ -6,6 +6,8 @@ export function renderAreas(registry, state) {
     .all("areas")
     .map((area) => {
       const locked = area.level > state.combatLevel;
+      const cleared = state.clearedAreas.includes(area.id);
+      const foeCount = area.enemyIds.length + area.bossIds.length;
       const factions = area.factionIds
         .map((id) => registry.get("factions", id))
         .filter(Boolean);
@@ -28,9 +30,11 @@ export function renderAreas(registry, state) {
           <div class="area-tags">
             <span class="tag war">${esc(area.type)}</span>
             ${factionTags}
+            ${area.bossIds.length ? `<span class="tag">Boss</span>` : ""}
+            ${cleared ? `<span class="tag">Cleared</span>` : ""}
           </div>
           <div class="area-meta">
-            <span>${area.enemyIds.length} foes</span>
+            <span>${foeCount} foes</span>
             <span>${area.nodeIds.length} nodes</span>
             <span>${locked ? "Locked" : "Enter"}</span>
           </div>

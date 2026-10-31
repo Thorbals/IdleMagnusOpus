@@ -105,7 +105,7 @@ export default defineCategory({
       group: "combat",
       cost: 300,
       icon: "medkit",
-      grantsUnlock: "autoheal",
+      grantsUnlock: "auto_eat",
     },
   },
 });

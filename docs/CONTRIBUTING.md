@@ -1,4 +1,4 @@
-﻿# Idleness - UI Prototype
+﻿# Idleness - Contributing
 
 A working UI shell with a normalized content layer. Layout mirrors the old game shell; theme is Night Market - Steel Blue.
 
@@ -13,13 +13,13 @@ python -m http.server 8771 --bind 127.0.0.1
 Open:
 
 ```
-http://127.0.0.1:8771/prototype/index.html
+http://127.0.0.1:8771/
 ```
 
 Validate content:
 
 ```powershell
-node prototype/scripts/validate-content.mjs
+node tools/validate-content.mjs
 ```
 
 Deep links for screenshots/testing:
@@ -38,11 +38,18 @@ Deep links for screenshots/testing:
 - Sidebar generated from skill modules, grouped Combat / Gathering / Production / Crafting.
 - Top bar: scrap, combat level, Save / Load / Reset.
 - Areas page from `areas` definitions.
-- Area detail / Combat: player and enemy panels, enemy list, bosses, gathering nodes, equipment, quick actions, activity log.
-- Bank: slot grid with stack counts, click to equip or use.
+- Area detail tabs: Combat / Gathering / Dungeons.
+- Auto combat with player/enemy attack timers, hit chance, crit, auto-fight, auto-eat, victory/defeat modal.
+- Enemy list excludes bosses; bosses live in the Dungeons tab.
+- Gathering grid with node cards, active action progress, repeat.
+- Crafting with input checks and a five-slot queue.
+- Global action strip visible on every screen.
+- Bank: slot grid, capacity upgrades, click to equip or use.
 - Shop: General / Equipment / Upgrades tabs, purchases and unlocks.
-- Skill page: level/XP, node list for gathering, recipe list for crafting, active action bar.
+- Skill page: level/XP, node list, recipe list, queue, perks placeholder.
 - Home Base: HUD, build palette, 10x10 grid placement.
+- Offline progress report for the active action.
+- Autosave every 30 seconds and on exit.
 - Toast notifications, localStorage save/load/reset.
 
 ## Normalized categories
@@ -162,10 +169,12 @@ src/
       areas.js
       index.js
   game/
+    actions.js           node and recipe completion
     inventory.js         items, stacks, equip/unequip
     loot.js              drop rolls
+    offline.js           offline action simulation
     progression.js       XP, levels, skill bonuses
-    stats.js             derived stats, enemy scaling
+    stats.js             derived stats, enemy scaling, damage
   state/
     state.js             state creation, save/load, logs, toasts
   ui/
@@ -175,7 +184,8 @@ src/
     screens/             areas, combat, bank, shop, skills, homebase
     app.js               event delegation, actions, tick
     styles.css
-  main.js                build registry, boot app
+  app/
+    main.js              build registry, boot app
 ```
 
 ## Interactions
@@ -183,9 +193,13 @@ src/
 | Action | Result |
 | --- | --- |
 | Click an area card | Opens area detail / combat |
-| Fight | One combat round against the selected enemy |
+| Fight | Starts auto combat with the selected enemy |
+| Auto Fight | Continues to the next normal enemy after a kill |
+| Auto Eat | Uses a bandage or cooked meat below 30% HP |
 | Start node | Runs gathering over time; adds drops and XP |
+| Queue node/recipe | Adds up to five actions after the current one |
 | Craft | Checks inputs, consumes them, adds outputs and XP |
+| Offline | Completes the active action on return |
 | Click a bank item | Equips gear or uses a consumable |
 | Buy a shop offer | Deducts scrap, grants item or unlock |
 | Build card + tile | Places or removes a structure |
@@ -193,12 +207,15 @@ src/
 
 ## Not implemented yet
 
-- Crafting queue and repeat automation.
-- Full combat loop, abilities, status effects.
+- Status effects, abilities, and enemy behaviors.
+- Tools and tool requirements on nodes.
+- Perks as data-driven stat effects.
 - City economy, survivors, raids.
-- Offline progression.
+- 24x24 icon set.
+- Bank search/sort and item detail panel.
+- Shop buy/sell and quantity.
 - Content authoring UI.
-- Full content catalog.
+- Full node, recipe, and gear catalog.
 
 ## Theme
 
@@ -209,3 +226,4 @@ Tokens come from `../design/themes/night-market.css`:
 - title `#3a5f8a` (Steel Blue)
 - accent `#4fe0d0` (Cyan)
 - text `#e6e6ef`
+

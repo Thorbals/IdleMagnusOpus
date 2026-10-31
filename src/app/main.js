@@ -1,7 +1,8 @@
-﻿import { categories } from "./content/categories/index.js";
-import { buildRegistry } from "./content/registry.js";
-import { createState, loadState } from "./state/state.js";
-import { createApp } from "./ui/app.js";
+﻿import { categories } from "../content/categories/index.js";
+import { buildRegistry } from "../content/registry.js";
+import { applyOfflineProgress } from "../game/offline.js";
+import { createState, loadState } from "../state/state.js";
+import { createApp } from "../ui/app.js";
 
 const registry = buildRegistry(categories);
 
@@ -17,6 +18,8 @@ if (registry.errors.length > 0) {
 } else {
   const saved = loadState(registry);
   const state = saved ?? createState(registry);
+
+  if (saved) applyOfflineProgress(state, registry);
 
   const params = new URLSearchParams(window.location.search);
   const screen = params.get("screen");

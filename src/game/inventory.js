@@ -44,11 +44,18 @@ export function addItem(state, registry, itemId, qty = 1) {
   const existing = state.bank.find((stack) => stack.itemId === itemId);
   if (existing) {
     existing.qty += qty;
-  } else {
-    state.bank = [...state.bank, { itemId, qty }];
+    return true;
   }
 
+  if (state.bank.length >= bankCapacity(state)) return false;
+
+  state.bank = [...state.bank, { itemId, qty }];
   return true;
+}
+
+export function bankCapacity(state) {
+  const tabs = state.unlocks.filter((unlock) => unlock.startsWith("bank_tab_")).length;
+  return 30 + tabs * 32;
 }
 
 export function removeItem(state, itemId, qty = 1) {
