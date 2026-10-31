@@ -1,4 +1,4 @@
-import { defineCategory } from "../category.js";
+﻿import { defineCategory } from "../category.js";
 
 export default defineCategory({
   id: "loot",
@@ -138,6 +138,19 @@ export default defineCategory({
         "item.military_knife": { chance: 100, min: 1, max: 1 },
         "item.scrap": { chance: 100, min: 5, max: 12 },
         "item.bandage": { chance: 50, min: 1, max: 2 },
+      },
+    },
+    geode: {
+      name: "Geode",
+      entries: {
+        "item.diamond": { chance: 5, min: 1, max: 1 },
+        "item.ruby": { chance: 12, min: 1, max: 1 },
+        "item.sapphire": { chance: 12, min: 1, max: 1 },
+        "item.emerald": { chance: 12, min: 1, max: 1 },
+        "item.amethyst": { chance: 15, min: 1, max: 1 },
+        "item.opal": { chance: 10, min: 1, max: 1 },
+        "item.pearl": { chance: 10, min: 1, max: 1 },
+        "item.topaz": { chance: 100, min: 1, max: 1 },
       },
     },
   },

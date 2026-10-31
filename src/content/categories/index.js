@@ -1,7 +1,9 @@
-import items from "./items.js";
+﻿import items from "./items.js";
 import equipment from "./equipment.js";
+import tools from "./tools.js";
 import factions from "./factions.js";
 import loot from "./loot.js";
+import openables from "./openables.js";
 import enemies from "./enemies.js";
 import skills from "./skills.js";
 import nodes from "./nodes.js";
@@ -16,8 +18,10 @@ import areas from "./areas.js";
 export const categories = [
   items,
   equipment,
+  tools,
   factions,
   loot,
+  openables,
   enemies,
   skills,
   nodes,

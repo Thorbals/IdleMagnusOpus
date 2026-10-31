@@ -99,8 +99,11 @@ function renderNodeCards(registry, state, area) {
     .filter(Boolean)
     .map((node) => {
       const skill = registry.get("skills", node.skillId);
+      const tool = node.toolId ? registry.get("tools", node.toolId) : null;
       const level = skillLevel(state, node.skillId);
       const locked = level < node.levelReq;
+      const hasTool = !tool || countItem(state, tool.itemId) > 0;
+      const toolSuffix = tool ? ` - ${esc(tool.name)}` : "";
       const active = state.activeAction?.kind === "node" && state.activeAction.id === node.id;
 
       return `
@@ -109,11 +112,11 @@ function renderNodeCards(registry, state, area) {
             <div class="gather-icon">${icon(node.icon)}</div>
             <div>
               <div class="gather-name">${esc(node.name)}</div>
-              <div class="gather-meta">${esc(skill.name)} - Lv ${node.levelReq} - ${durationLabel(node.durationMs)}</div>
+              <div class="gather-meta">${esc(skill.name)} - Lv ${node.levelReq} - ${durationLabel(node.durationMs)}${toolSuffix}</div>
             </div>
           </div>
-          <button class="btn" data-node="${esc(node.id)}" ${locked ? "disabled" : ""}>
-            ${locked ? `Level ${node.levelReq}` : "Start"}
+          <button class="btn" data-node="${esc(node.id)}" ${locked || !hasTool ? "disabled" : ""}>
+            ${locked ? `Level ${node.levelReq}` : !hasTool ? `Needs ${esc(tool.name)}` : "Start"}
           </button>
         </div>
       `;

@@ -9,6 +9,7 @@ import {
 import { resolveDrops } from "../game/loot.js";
 import { applyOfflineProgress } from "../game/offline.js";
 import { addSkillXp, skillLevel } from "../game/progression.js";
+import { resolveRaid } from "../game/settlement.js";
 import { calculateDamage, deriveStats, encounterLevel, hitChance, scaleEnemy } from "../game/stats.js";
 import {
   loadState,
@@ -151,6 +152,18 @@ export function createApp({ registry, state }) {
       }
     }
 
+    let duration = definition.durationMs;
+
+    if (kind === "node" && definition.toolId) {
+      const tool = registry.get("tools", definition.toolId);
+      if (!tool || countItem(state, tool.itemId) < 1) {
+        setToast(state, `Requires ${tool?.name ?? "a tool"}.`, "bad");
+        render();
+        return;
+      }
+      duration = Math.round(duration / (1 + tool.speedBonus / 100));
+    }
+
     if (state.activeAction) {
       if (state.activityQueue.length >= 5) {
         setToast(state, "Queue is full.", "bad");
@@ -158,11 +171,12 @@ export function createApp({ registry, state }) {
         return;
       }
 
+      state.activeAction = { ...state.activeAction, repeat: false };
       state.activityQueue = [
         ...state.activityQueue,
-        { kind, id, durationMs: definition.durationMs, repeat: false },
+        { kind, id, durationMs: duration, repeat: true },
       ];
-      pushLog(state, `Queued ${definition.name}.`, "muted");
+      pushLog(state, `Queued ${definition.name}; repeat stopped.`, "muted");
       setToast(state, `Queued ${definition.name}`);
       render();
       return;
@@ -171,9 +185,9 @@ export function createApp({ registry, state }) {
     state.activeAction = {
       kind,
       id,
-      durationMs: definition.durationMs,
+      durationMs: duration,
       elapsed: 0,
-      repeat: false,
+      repeat: true,
     };
     pushLog(state, `Started ${definition.name}.`, "muted");
     render({ resetScroll: true });
@@ -378,23 +392,26 @@ export function createApp({ registry, state }) {
       return;
     }
 
-    if (state.scrap < offer.cost) {
+    const qty = offer.repeatable ? state.shopQty : 1;
+    const total = offer.cost * qty;
+
+    if (state.scrap < total) {
       setToast(state, "Not enough scrap.", "bad");
       render();
       return;
     }
 
-    state.scrap -= offer.cost;
+    state.scrap -= total;
 
     if (offer.grantsItemId) {
-      const added = addItem(state, registry, offer.grantsItemId, offer.grantsItemQty);
+      const added = addItem(state, registry, offer.grantsItemId, offer.grantsItemQty * qty);
       if (!added) {
-        state.scrap += offer.cost;
+        state.scrap += total;
         setToast(state, "Bank is full.", "bad");
         render();
         return;
       }
-      pushLog(state, `Bought ${offer.name}.`, "loot");
+      pushLog(state, `Bought ${qty > 1 ? `${qty}x ` : ""}${offer.name}.`, "loot");
     }
 
     if (offer.grantsUnlock) {
@@ -403,7 +420,30 @@ export function createApp({ registry, state }) {
       pushLog(state, `Unlocked ${offer.name}.`, "good");
     }
 
-    setToast(state, `Bought ${offer.name}`);
+    setToast(state, `Bought ${qty > 1 ? `${qty}x ` : ""}${offer.name}`);
+    render();
+  }
+
+  function openItem(itemId) {
+    const openable = registry.all("openables").find((entry) => entry.itemId === itemId);
+    if (!openable || countItem(state, itemId) < 1) return;
+
+    removeItem(state, itemId, 1);
+    const parts = grantLoot(resolveDrops(registry, openable.lootId));
+    setToast(state, parts.length ? `Opened ${openable.name}: ${parts.join(", ")}` : `${openable.name} was empty.`);
+    render();
+  }
+
+  function sell(itemId) {
+    const item = registry.get("items", itemId);
+    const owned = countItem(state, itemId);
+    if (!item || owned < 1) return;
+
+    const qty = Math.min(state.shopQty, owned);
+    removeItem(state, itemId, qty);
+    state.scrap += item.value * qty;
+    pushLog(state, `Sold ${qty}x ${item.name} for ${item.value * qty} scrap.`, "loot");
+    setToast(state, `Sold ${qty}x ${item.name}`);
     render();
   }
 
@@ -469,7 +509,10 @@ export function createApp({ registry, state }) {
     "[data-node]",
     "[data-recipe]",
     "[data-shop-tab]",
+    "[data-shop-mode]",
+    "[data-shop-qty]",
     "[data-buy]",
+    "[data-sell]",
     "[data-item]",
     "[data-unequip]",
     "[data-build]",
@@ -485,6 +528,7 @@ export function createApp({ registry, state }) {
     "[data-result-continue]",
     "[data-result-retreat]",
     "[data-dismiss-offline]",
+    "[data-raid-now]",
   ].join(",");
 
   function handleNavigation(target) {
@@ -636,8 +680,25 @@ export function createApp({ registry, state }) {
       return true;
     }
 
+    if (target.dataset.shopMode) {
+      state.shopMode = target.dataset.shopMode;
+      render();
+      return true;
+    }
+
+    if (target.dataset.shopQty) {
+      state.shopQty = Number(target.dataset.shopQty);
+      render();
+      return true;
+    }
+
     if (target.dataset.buy) {
       buy(target.dataset.buy);
+      return true;
+    }
+
+    if (target.dataset.sell) {
+      sell(target.dataset.sell);
       return true;
     }
 
@@ -653,6 +714,11 @@ export function createApp({ registry, state }) {
           setToast(state, `Equipped ${itemName(registry, target.dataset.item)}`);
         }
         render();
+        return true;
+      }
+
+      if (action === "open") {
+        openItem(target.dataset.item);
         return true;
       }
 
@@ -689,6 +755,12 @@ export function createApp({ registry, state }) {
 
     if (target.dataset.tile !== undefined) {
       placeTile(Number(target.dataset.tile));
+      return true;
+    }
+
+    if (target.dataset.raidNow !== undefined) {
+      resolveRaid(state);
+      render();
       return true;
     }
 
@@ -755,6 +827,15 @@ export function createApp({ registry, state }) {
 
     if (state.combat?.running) {
       tickCombat();
+      dirty = true;
+    }
+
+    if (state.home?.nextRaidAt && Date.now() >= state.home.nextRaidAt) {
+      resolveRaid(state);
+      dirty = true;
+    }
+
+    if (state.screen === "homebase") {
       dirty = true;
     }
 

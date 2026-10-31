@@ -14,8 +14,9 @@ export function renderBank(registry, state) {
 
       const gear = equipmentForItem(registry, stack.itemId);
       const usable = item.category === "consumable";
-      const action = gear ? "equip" : usable ? "use" : "inspect";
-      const hint = gear ? "Click to equip" : usable ? "Click to use" : "Material";
+      const openable = registry.all("openables").some((entry) => entry.itemId === stack.itemId);
+      const action = gear ? "equip" : openable ? "open" : usable ? "use" : "inspect";
+      const hint = gear ? "Click to equip" : openable ? "Click to open" : usable ? "Click to use" : "Material";
 
       return `
         <button

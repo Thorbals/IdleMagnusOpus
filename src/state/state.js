@@ -46,6 +46,14 @@ const STARTING_BANK = [
   ["item.military_knife", 1],
   ["item.ammo", 123],
   ["item.raw_fish", 2],
+  ["item.iron_axe", 1],
+  ["item.iron_pickaxe", 1],
+  ["item.iron_sickle", 1],
+  ["item.iron_cage_trap", 1],
+  ["item.willow_rod", 1],
+  ["item.iron_pry_bar", 1],
+  ["item.iron_skeleton_key", 1],
+  ["item.geode", 1],
 ];
 
 function makeHome() {
@@ -60,7 +68,14 @@ function makeHome() {
   tiles[7 * 10 + 7] = "building";
   tiles[7 * 10 + 8] = "building";
 
-  return { tiles, selected: "wall" };
+  return {
+    tiles,
+    selected: "wall",
+    survivors: 3,
+    raidsSurvived: 0,
+    nextRaidAt: Date.now() + 30 * 60 * 1000,
+    lastRaid: null,
+  };
 }
 
 export function createState(registry) {
@@ -97,6 +112,8 @@ export function createState(registry) {
     selectedEnemyId: "enemy.zombies_shambler",
     selectedSkillId: "skill.mining",
     shopTab: "general",
+    shopMode: "buy",
+    shopQty: 1,
     unlocks: [],
     clearedAreas: [],
     home: makeHome(),
@@ -136,7 +153,7 @@ export function loadState(registry) {
       toast: null,
       combatResult: null,
       offlineReport: null,
-      home: parsed.home ?? fresh.home,
+      home: { ...fresh.home, ...(parsed.home ?? {}) },
       activityQueue: parsed.activityQueue ?? [],
       lastSavedAt: parsed.savedAt ?? null,
       combat: parsed.combat ? { ...parsed.combat, running: false } : null,

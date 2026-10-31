@@ -1,4 +1,4 @@
-import { defineCategory } from "../category.js";
+﻿import { defineCategory } from "../category.js";
 
 export default defineCategory({
   id: "nodes",
@@ -7,6 +7,7 @@ export default defineCategory({
   fields: {
     name: { type: "string", required: true },
     skillId: { type: "string", required: true },
+    toolId: { type: "string", default: "" },
     levelReq: { type: "number", default: 1 },
     durationMs: { type: "number", default: 1000 },
     xp: { type: "number", default: 5 },
@@ -15,12 +16,14 @@ export default defineCategory({
   },
   refs: {
     skillId: "skills",
+    toolId: "tools",
     drops: { category: "items", kind: "keys" },
   },
   entries: {
     poplar_tree: {
       name: "Poplar Tree",
       skillId: "skill.woodcutting",
+      toolId: "tool.iron_axe",
       levelReq: 1,
       durationMs: 1000,
       xp: 5,
@@ -33,6 +36,7 @@ export default defineCategory({
     willow_tree: {
       name: "Willow Tree",
       skillId: "skill.woodcutting",
+      toolId: "tool.iron_axe",
       levelReq: 5,
       durationMs: 1200,
       xp: 7,
@@ -45,6 +49,7 @@ export default defineCategory({
     copper_vein: {
       name: "Copper Vein",
       skillId: "skill.mining",
+      toolId: "tool.iron_pickaxe",
       levelReq: 1,
       durationMs: 1000,
       xp: 5,
@@ -52,11 +57,13 @@ export default defineCategory({
       drops: {
         "item.copper_ore": { qty: 1, chance: 100 },
         "item.coal": { qty: 1, chance: 25 },
+        "item.geode": { qty: 1, chance: 5 },
       },
     },
     iron_deposit: {
       name: "Iron Deposit",
       skillId: "skill.mining",
+      toolId: "tool.iron_pickaxe",
       levelReq: 10,
       durationMs: 1600,
       xp: 12,
@@ -64,11 +71,13 @@ export default defineCategory({
       drops: {
         "item.copper_ore": { qty: 2, chance: 100 },
         "item.coal": { qty: 1, chance: 50 },
+        "item.geode": { qty: 1, chance: 8 },
       },
     },
     bluegill: {
       name: "Bluegill",
       skillId: "skill.fishing",
+      toolId: "tool.willow_rod",
       levelReq: 1,
       durationMs: 1200,
       xp: 5,
@@ -80,6 +89,7 @@ export default defineCategory({
     wild_cotton: {
       name: "Wild Cotton",
       skillId: "skill.foraging",
+      toolId: "tool.iron_sickle",
       levelReq: 1,
       durationMs: 1100,
       xp: 5,
@@ -91,6 +101,7 @@ export default defineCategory({
     gray_squirrel: {
       name: "Gray Squirrel",
       skillId: "skill.hunting",
+      toolId: "tool.iron_cage_trap",
       levelReq: 1,
       durationMs: 1400,
       xp: 6,
@@ -103,6 +114,7 @@ export default defineCategory({
     gymnasium: {
       name: "Gymnasium",
       skillId: "skill.looting",
+      toolId: "tool.iron_skeleton_key",
       levelReq: 1,
       durationMs: 1500,
       xp: 6,
@@ -115,6 +127,7 @@ export default defineCategory({
     scrap_pile: {
       name: "Scrap Pile",
       skillId: "skill.scavenging",
+      toolId: "tool.iron_pry_bar",
       levelReq: 1,
       durationMs: 1200,
       xp: 5,

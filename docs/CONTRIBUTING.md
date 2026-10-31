@@ -41,13 +41,15 @@ Deep links for screenshots/testing:
 - Area detail tabs: Combat / Gathering / Dungeons.
 - Auto combat with player/enemy attack timers, hit chance, crit, auto-fight, auto-eat, victory/defeat modal.
 - Enemy list excludes bosses; bosses live in the Dungeons tab.
-- Gathering grid with node cards, active action progress, repeat.
+- Gathering grid with node cards, active action progress, repeat on by default.
 - Crafting with input checks and a five-slot queue.
 - Global action strip visible on every screen.
-- Bank: slot grid, capacity upgrades, click to equip or use.
-- Shop: General / Equipment / Upgrades tabs, purchases and unlocks.
+- 7 tools with node requirements and speed bonuses.
+- Openable geodes with gem loot.
+- Bank: slot grid, capacity upgrades, click to equip/use/open.
+- Shop: General / Equipment / Upgrades, buy/sell, quantity controls.
 - Skill page: level/XP, node list, recipe list, queue, perks placeholder.
-- Home Base: HUD, build palette, 10x10 grid placement.
+- Home Base: HUD, defense rating, build palette, 10x10 grid placement, timed raids.
 - Offline progress report for the active action.
 - Autosave every 30 seconds and on exit.
 - Toast notifications, localStorage save/load/reset.
@@ -159,9 +161,11 @@ src/
     categories/
       items.js
       equipment.js
+      tools.js
       factions.js
       enemies.js
       loot.js
+      openables.js
       skills.js
       nodes.js
       recipes.js
@@ -208,12 +212,10 @@ src/
 ## Not implemented yet
 
 - Status effects, abilities, and enemy behaviors.
-- Tools and tool requirements on nodes.
 - Perks as data-driven stat effects.
-- City economy, survivors, raids.
+- Survivor assignments and full city economy.
 - 24x24 icon set.
 - Bank search/sort and item detail panel.
-- Shop buy/sell and quantity.
 - Content authoring UI.
 - Full node, recipe, and gear catalog.
 

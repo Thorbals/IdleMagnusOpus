@@ -1,4 +1,6 @@
-﻿import { skillLevel, xpForLevel } from "../../game/progression.js";
+﻿import { countItem } from "../../game/inventory.js";
+import { skillLevel, xpForLevel } from "../../game/progression.js";
+
 import {
   activeActionLabel,
   durationLabel,
@@ -22,7 +24,7 @@ function renderActionBar(registry, state) {
       <div class="panel-body">
         <div class="action-line">
           <div class="action-name">${esc(name)}</div>
-          <div class="action-meta">${durationLabel(action.durationMs)} Â· repeat ${action.repeat ? "on" : "off"}</div>
+          <div class="action-meta">${durationLabel(action.durationMs)} -- repeat ${action.repeat ? "on" : "off"}</div>
         </div>
         <div class="progress"><i style="width:${percent}%"></i></div>
         <div class="action-actions">
@@ -60,7 +62,7 @@ function renderDrops(registry, drops) {
     .map(([itemId, drop]) => {
       const item = registry.get("items", itemId);
       return `
-        <span class="drop-chip" title="${esc(item?.name ?? itemId)} â€” ${drop.chance}%">
+        <span class="drop-chip" title="${esc(item?.name ?? itemId)} --- ${drop.chance}%">
           ${icon(item?.icon ?? "scrap")} ${drop.qty ?? 1}x ${esc(item?.name ?? itemId)}
         </span>
       `;
@@ -75,18 +77,21 @@ function renderNodes(registry, state, skill) {
   return nodes
     .map((node) => {
       const locked = level < node.levelReq;
+      const tool = node.toolId ? registry.get("tools", node.toolId) : null;
+      const hasTool = !tool || countItem(state, tool.itemId) > 0;
+
       return `
         <div class="list-row">
           <div class="row-icon">${icon(node.icon)}</div>
           <div class="row-main">
             <div class="row-title">${esc(node.name)}</div>
             <div class="row-sub">
-              Lv ${node.levelReq} Â· ${durationLabel(node.durationMs)} Â· ${node.xp} XP
+              Lv ${node.levelReq} - ${durationLabel(node.durationMs)} - ${node.xp} XP${tool ? ` - ${esc(tool.name)}` : ""}
             </div>
             <div class="row-drops">${renderDrops(registry, node.drops)}</div>
           </div>
-          <button class="btn small" data-node="${esc(node.id)}" ${locked ? "disabled" : ""}>
-            ${locked ? `Lv ${node.levelReq}` : "Start"}
+          <button class="btn small" data-node="${esc(node.id)}" ${locked || !hasTool ? "disabled" : ""}>
+            ${locked ? `Lv ${node.levelReq}` : !hasTool ? `Needs ${esc(tool.name)}` : "Start"}
           </button>
         </div>
       `;
@@ -119,7 +124,7 @@ function renderRecipes(registry, state, skill) {
           <div class="row-icon">${icon(recipe.icon)}</div>
           <div class="row-main">
             <div class="row-title">${esc(recipe.name)}</div>
-            <div class="row-sub">Lv ${recipe.levelReq} Â· ${durationLabel(recipe.durationMs)} Â· ${recipe.xp} XP</div>
+            <div class="row-sub">Lv ${recipe.levelReq} -- ${durationLabel(recipe.durationMs)} -- ${recipe.xp} XP</div>
             <div class="row-drops">${inputs}<span class="arrow">&rarr;</span>${outputs}</div>
           </div>
           <button class="btn small" data-recipe="${esc(recipe.id)}" ${locked ? "disabled" : ""}>

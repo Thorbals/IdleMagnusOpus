@@ -42,11 +42,13 @@ These are the rules the prototype uses until a later balance pass changes them.
 - Auto Fight continues after a normal kill; it stops on bosses and defeats.
 - Bosses live in the dungeon tab, not the normal enemy list.
 - Offline combat is paused.
+- Home Base raids run every 30-60 minutes and damage structures when defense is lower than raid strength.
 
 ## Skills
 
 - Gathering and crafting actions can be queued.
-- Repeat keeps the same action running.
+- Repeat is on by default and keeps the same action running.
+- Tier-1 tools are required for their gathering nodes and start in the bank.
 - Offline progress completes the active action and queue up to a 12-hour cap.
 
 ## Content

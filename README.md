@@ -27,12 +27,14 @@ node tools/validate-content.mjs
 - 8 factions, 240 enemies, 29 areas with level gates and boss clears
 - Auto combat with hit/crit/timers, auto-fight, auto-eat, result modal
 - Combat / Gathering / Dungeons tabs
-- Gathering and crafting actions with a five-slot queue
+- Gathering and crafting actions with a five-slot queue and repeat on by default
 - Global active action strip
+- 7 tools with node requirements and speed bonuses
+- Openable geodes with gem loot tables
 - Bank with capacity upgrades and equip/use
-- Shop tabs, purchases, unlocks
+- Shop tabs, buy/sell, quantity controls, purchases, unlocks
 - Skill pages with XP, nodes, recipes, queue
-- Home Base grid placement
+- Home Base grid placement, defense rating, and timed raids
 - Offline progress for the active action
 - Autosave and manual save/load/reset
 
