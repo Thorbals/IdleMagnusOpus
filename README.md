@@ -4,7 +4,7 @@ A browser-based post-apocalyptic idle RPG built with plain ES modules and a pixe
 
 ## Run
 
-From `C:\Idleness`:
+Double-click `play.bat` in `C:\Idleness`, or run from `C:\Idleness`:
 
 ```powershell
 python -m http.server 8771 --bind 127.0.0.1
@@ -15,6 +15,8 @@ Open:
 ```
 http://127.0.0.1:8771/
 ```
+
+Do not open `index.html` directly from File Explorer. The game uses ES modules, which browsers block on `file://`. It must be served over `http://`.
 
 ## Validate content
 
