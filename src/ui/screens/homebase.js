@@ -70,7 +70,7 @@ export function renderHomeBase(state) {
           <div class="hud-badge">${icon("shield")} <span>Walls</span> <b>${walls}</b></div>
           <div class="hud-badge">${icon("crate")} <span>Buildings</span> <b>${buildings}</b></div>
           <div class="hud-badge">${icon("survivor")} <span>Survivors</span> <b>${home.survivors ?? 0}</b></div>
-          <div class="hud-badge">${icon("star")} <span>Next raid</span> <b>${countdown(home.nextRaidAt - Date.now())}</b></div>
+          <div class="hud-badge">${icon("star")} <span>Next raid</span> <b data-raid-countdown>${countdown(home.nextRaidAt - Date.now())}</b></div>
         </div>
 
         <div class="raid-row">

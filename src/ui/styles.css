@@ -1095,3 +1095,62 @@ button, select { font: inherit; }
   letter-spacing: 0.04em;
   text-transform: uppercase;
 }
+
+/* ---------- Compact, collapsible sidebar ---------- */
+.sidebar {
+  scrollbar-width: thin;
+  scrollbar-color: var(--frame-soft) transparent;
+}
+
+.logo { padding: 10px 12px 8px; }
+.logo h1 { font-size: 26px; }
+.logo span { margin-top: 2px; font-size: 6px; }
+
+.nav-group { padding: 5px 8px 0; }
+
+.nav-heading {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0 0 4px;
+  padding: 0 0 3px;
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid var(--frame-soft);
+  color: var(--muted);
+  font-family: var(--font-ui);
+  font-size: 7px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+
+.nav-heading:hover { color: var(--text); }
+
+.nav-caret {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1;
+  color: var(--accent);
+}
+
+.nav-item {
+  padding: 1px 5px;
+  margin-bottom: 1px;
+  gap: 6px;
+  font-size: 9px;
+}
+
+.nav-icon {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 20px;
+  font-size: 9px;
+}
+
+.nav-level { font-size: 12px; }
+
+.nav-group.collapsed .nav-item { display: none; }

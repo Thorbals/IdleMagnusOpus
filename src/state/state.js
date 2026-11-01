@@ -114,6 +114,7 @@ export function createState(registry) {
     shopTab: "general",
     shopMode: "buy",
     shopQty: 1,
+    collapsedGroups: [],
     unlocks: [],
     clearedAreas: [],
     home: makeHome(),

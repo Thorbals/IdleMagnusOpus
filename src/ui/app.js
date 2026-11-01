@@ -18,7 +18,7 @@ import {
   saveState,
   setToast,
 } from "../state/state.js";
-import { itemName } from "./helpers.js";
+import { activeActionLabel, esc, itemName, progressPercent } from "./helpers.js";
 import { renderAreas } from "./screens/areas.js";
 import { renderBank } from "./screens/bank.js";
 import { renderCombat } from "./screens/combat.js";
@@ -30,6 +30,7 @@ import { renderShell } from "./shell.js";
 export function createApp({ registry, state }) {
   const root = document.getElementById("app");
   let lastScreenKey = "";
+  let needsRender = false;
   let autosaveElapsed = 0;
 
   function screenContent() {
@@ -50,7 +51,89 @@ export function createApp({ registry, state }) {
     }
   }
 
+  function renderLogLines() {
+    return state.logs
+      .slice(-10)
+      .map((line) => `<div class="log-line"><span class="${line.tone}">&gt;</span> ${esc(line.text)}</div>`)
+      .join("");
+  }
+
+  function setFighterLive(card, hp, maxHp, timer) {
+    if (!card) return;
+
+    const width = maxHp > 0 ? Math.max(0, Math.min(100, (hp / maxHp) * 100)) : 0;
+    const fill = card.querySelector("[data-hp-fill]");
+    const text = card.querySelector("[data-hp-text]");
+    const timerEl = card.querySelector("[data-fighter-timer]");
+
+    if (fill) fill.style.width = `${width}%`;
+    if (text) text.textContent = `${Math.round(hp)} / ${Math.round(maxHp)}`;
+    if (timerEl) timerEl.textContent = timer > 0 ? `${timer.toFixed(1)}s` : "READY";
+  }
+
+  function countdownLabel(ms) {
+    if (ms <= 0) return "Incoming!";
+    const minutes = Math.floor(ms / 60000);
+    const seconds = Math.floor((ms % 60000) / 1000);
+    return `${minutes}m ${String(seconds).padStart(2, "0")}s`;
+  }
+
+  function updateLiveUI() {
+    const action = state.activeAction;
+
+    if (action) {
+      const percent = progressPercent(action);
+      const globalBar = root.querySelector(".global-action");
+
+      if (globalBar) {
+        const fill = globalBar.querySelector(".progress i");
+        const label = globalBar.querySelector(".global-action-label");
+        const percentEl = globalBar.querySelector(".global-action-percent");
+        if (fill) fill.style.width = `${percent}%`;
+        if (label) label.textContent = activeActionLabel(registry, action);
+        if (percentEl) percentEl.textContent = `${Math.round(percent)}%`;
+      }
+
+      const skillBar = root.querySelector(".action-bar");
+      if (skillBar) {
+        const fill = skillBar.querySelector(".progress i");
+        const meta = skillBar.querySelector(".panel-title .meta");
+        if (fill) fill.style.width = `${percent}%`;
+        if (meta) meta.textContent = `${Math.round(percent)}%`;
+      }
+    }
+
+    if (state.combat) {
+      const player = deriveStats(state, registry);
+      setFighterLive(
+        root.querySelector('[data-fighter="player"]'),
+        state.hp,
+        player.maxHp,
+        state.combat.playerTimer
+      );
+      setFighterLive(
+        root.querySelector('[data-fighter="enemy"]'),
+        state.combat.hp,
+        state.combat.maxHp,
+        state.combat.enemyTimer
+      );
+
+      const log = root.querySelector("[data-combat-log]");
+      if (log && log.dataset.count !== String(state.logs.length)) {
+        log.innerHTML = renderLogLines();
+        log.dataset.count = String(state.logs.length);
+        log.scrollTop = log.scrollHeight;
+      }
+    }
+
+    const raid = root.querySelector("[data-raid-countdown]");
+    if (raid && state.home?.nextRaidAt) {
+      raid.textContent = countdownLabel(state.home.nextRaidAt - Date.now());
+    }
+  }
+
   function render({ resetScroll = false } = {}) {
+    needsRender = false;
     const screenKey = `${state.screen}:${state.selectedAreaId}:${state.selectedSkillId}`;
     const scroll = root.querySelector(".content")?.scrollTop ?? 0;
     const changed = screenKey !== lastScreenKey;
@@ -197,6 +280,7 @@ export function createApp({ registry, state }) {
     const action = state.activeAction;
     if (!action) return;
 
+    needsRender = true;
     const result = completeActionOnce(state, registry, action);
     const parts = result.parts.map(
       (part) => `${part.qty}x ${itemName(registry, part.itemId)}`
@@ -287,6 +371,7 @@ export function createApp({ registry, state }) {
       xp,
       boss,
     };
+    needsRender = true;
   }
 
   function handleDefeat(enemy, combat) {
@@ -301,6 +386,7 @@ export function createApp({ registry, state }) {
       boss: enemy.role === "boss",
     };
     pushLog(state, `${enemy.name} overwhelms you. You fall back.`, "bad");
+    needsRender = true;
   }
 
   function tickCombat() {
@@ -503,6 +589,7 @@ export function createApp({ registry, state }) {
 
   const CLICK_TARGETS = [
     "[data-nav]",
+    "[data-group]",
     "[data-skill]",
     "[data-area]",
     "[data-fight]",
@@ -530,6 +617,23 @@ export function createApp({ registry, state }) {
     "[data-dismiss-offline]",
     "[data-raid-now]",
   ].join(",");
+
+  function handleNavGroups(target) {
+    if (!target.dataset.group) return false;
+
+    const group = target.dataset.group;
+    const collapsed = new Set(state.collapsedGroups ?? []);
+
+    if (collapsed.has(group)) {
+      collapsed.delete(group);
+    } else {
+      collapsed.add(group);
+    }
+
+    state.collapsedGroups = [...collapsed];
+    render();
+    return true;
+  }
 
   function handleNavigation(target) {
     if (target.dataset.nav) {
@@ -805,6 +909,7 @@ export function createApp({ registry, state }) {
     const target = event.target.closest(CLICK_TARGETS);
     if (!target) return;
 
+    if (handleNavGroups(target)) return;
     if (handleNavigation(target)) return;
     if (handleAreaSelection(target)) return;
     if (handleAreaTabs(target)) return;
@@ -818,25 +923,18 @@ export function createApp({ registry, state }) {
   }
 
   function tick() {
-    let dirty = false;
-
     if (state.toast && Date.now() - state.toast.at > 2800) {
       state.toast = null;
-      dirty = true;
+      root.querySelector(".toast")?.remove();
     }
 
     if (state.combat?.running) {
       tickCombat();
-      dirty = true;
     }
 
     if (state.home?.nextRaidAt && Date.now() >= state.home.nextRaidAt) {
       resolveRaid(state);
-      dirty = true;
-    }
-
-    if (state.screen === "homebase") {
-      dirty = true;
+      needsRender = true;
     }
 
     if (state.activeAction) {
@@ -844,14 +942,12 @@ export function createApp({ registry, state }) {
       if (state.activeAction.elapsed >= state.activeAction.durationMs) {
         completeAction();
       }
-      dirty = true;
     }
 
     if (!state.combat?.running && state.hp > 0) {
       const player = deriveStats(state, registry);
       if (state.hp < player.maxHp) {
         state.hp = Math.min(player.maxHp, state.hp + player.hpRegen * 0.1);
-        dirty = true;
       }
     }
 
@@ -861,7 +957,11 @@ export function createApp({ registry, state }) {
       autosaveElapsed = 0;
     }
 
-    if (dirty) render();
+    if (needsRender) {
+      render();
+    } else {
+      updateLiveUI();
+    }
   }
 
   root.addEventListener("click", handleClick);

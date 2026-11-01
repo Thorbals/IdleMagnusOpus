@@ -24,17 +24,17 @@ function renderFighter({ name, meta, iconName, hp, maxHp, stats, timer, hitChanc
   const width = percentWidth(hp, maxHp);
 
   return `
-    <div class="fighter${enemy ? " enemy" : ""}">
+    <div class="fighter${enemy ? " enemy" : ""}" data-fighter="${enemy ? "enemy" : "player"}">
       <div class="fighter-head">
         <div class="portrait">${icon(iconName)}</div>
         <div>
           <div class="fighter-name">${esc(name)}</div>
           <div class="fighter-meta">${esc(meta)}</div>
         </div>
-        <div class="fighter-timer">${timer > 0 ? `${timer.toFixed(1)}s` : "READY"}</div>
+        <div class="fighter-timer" data-fighter-timer>${timer > 0 ? `${timer.toFixed(1)}s` : "READY"}</div>
       </div>
-      <div class="hp-bar${enemy ? " enemy" : ""}"><i style="width:${width}%"></i></div>
-      <div class="hp-text"><span>HP</span><span>${fmt(hp)} / ${fmt(maxHp)}</span></div>
+      <div class="hp-bar${enemy ? " enemy" : ""}"><i data-hp-fill style="width:${width}%"></i></div>
+      <div class="hp-text"><span>HP</span><span data-hp-text>${fmt(hp)} / ${fmt(maxHp)}</span></div>
       <div class="stat-grid">
         <div class="stat"><span>Atk</span><b>${fmt(stats.attack)}</b></div>
         <div class="stat"><span>Def</span><b>${fmt(stats.defense)}</b></div>
@@ -357,7 +357,7 @@ export function renderCombat(registry, state) {
         <section class="panel">
           <div class="panel-title"><span>Activity Log</span><span class="meta">Live</span></div>
           <div class="panel-body">
-            <div class="log log-tall">${renderLog(state)}</div>
+            <div class="log log-tall" data-combat-log>${renderLog(state)}</div>
           </div>
         </section>
       </aside>

@@ -9,6 +9,15 @@ const GROUPS = [
   ["crafting", "Crafting"],
 ];
 
+function groupHeading(id, label, collapsed) {
+  return `
+    <button class="nav-heading" data-group="${id}">
+      <span>${esc(label)}</span>
+      <span class="nav-caret">${collapsed ? "+" : "-"}</span>
+    </button>
+  `;
+}
+
 function navItem({ active, iconText, label, level, xp, attrs }) {
   return `
     <button class="nav-item${active ? " active" : ""}" ${attrs}>
@@ -41,6 +50,8 @@ function renderSidebar(registry, state) {
     )
     .join("");
 
+  const collapsed = new Set(state.collapsedGroups ?? []);
+
   const groups = GROUPS.map(([groupId, label]) => {
     const skills = registry.all("skills").filter((skill) => skill.group === groupId);
     if (skills.length === 0) return "";
@@ -61,8 +72,17 @@ function renderSidebar(registry, state) {
       )
       .join("");
 
-    return `<nav class="nav-group"><h3>${esc(label)}</h3>${items}</nav>`;
+    const isCollapsed = collapsed.has(groupId);
+
+    return `
+      <nav class="nav-group${isCollapsed ? " collapsed" : ""}">
+        ${groupHeading(groupId, label, isCollapsed)}
+        ${items}
+      </nav>
+    `;
   }).join("");
+
+  const mainCollapsed = collapsed.has("main");
 
   return `
     <aside class="sidebar">
@@ -70,8 +90,8 @@ function renderSidebar(registry, state) {
         <h1>Idleness</h1>
         <span>Post-apocalyptic idle</span>
       </div>
-      <nav class="nav-group">
-        <h3>Main</h3>
+      <nav class="nav-group${mainCollapsed ? " collapsed" : ""}">
+        ${groupHeading("main", "Main", mainCollapsed)}
         ${main}
       </nav>
       ${groups}
