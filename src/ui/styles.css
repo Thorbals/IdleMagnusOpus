@@ -1154,3 +1154,14 @@ button, select { font: inherit; }
 .nav-level { font-size: 12px; }
 
 .nav-group.collapsed .nav-item { display: none; }
+
+.build-tag {
+  margin-top: auto;
+  padding: 8px 10px;
+  border-top: 2px solid var(--frame-soft);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  color: var(--muted);
+  text-transform: uppercase;
+}

@@ -1,4 +1,5 @@
-﻿import { xpForLevel } from "../game/progression.js";
+﻿import { BUILD } from "../app/config.js";
+import { xpForLevel } from "../game/progression.js";
 import { activeActionLabel, esc, fmt, progressPercent } from "./helpers.js";
 import { icon } from "./icons.js";
 
@@ -95,6 +96,7 @@ function renderSidebar(registry, state) {
         ${main}
       </nav>
       ${groups}
+      <div class="build-tag">${esc(BUILD)}</div>
     </aside>
   `;
 }
